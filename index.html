@@ -3,208 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التلميذ - أكاديمية البيروني</title>
+    <title>تسجيل الدخول - أكاديمية البيروني</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- استدعاء مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Tajawal', sans-serif; }
-        .hidden-view { display: none; }
-        #chat-box::-webkit-scrollbar { width: 6px; }
-        #chat-box::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+        .hidden-view { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-50 flex min-h-screen">
+<body class="flex items-center justify-center min-h-screen">
 
-    <aside class="w-64 bg-slate-900 text-white p-6 hidden md:flex md:flex-col shadow-xl z-10">
-        <h1 class="text-2xl font-bold text-orange-400 mb-8 tracking-wide">أكاديمية البيروني</h1>
-        <nav class="space-y-4 flex-1">
-            <button onclick="switchView('dashboard')" id="nav-dashboard" class="w-full text-right p-3 bg-blue-600 rounded-lg font-bold transition shadow-md">لوحة القيادة</button>
-            <button onclick="switchView('quiz')" id="nav-quiz" class="w-full text-right p-3 hover:bg-slate-800 rounded-lg transition">الاختبارات التفاعلية</button>
-            <button onclick="switchView('bot')" id="nav-bot" class="w-full text-right p-3 hover:bg-slate-800 rounded-lg transition text-green-400 font-bold">🤖 بيروني بوت</button>
-        </nav>
-    </aside>
+    <!-- 1. شاشة تسجيل الدخول / إنشاء حساب -->
+    <div id="auth-section" class="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 max-w-md w-full text-center">
+        <div class="text-5xl mb-4">🚀</div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">أكاديمية البيروني</h2>
+        <p class="text-gray-500 mb-8">سجل دخولك لمتابعة دروسك ونقاطك</p>
 
-    <main class="flex-1 p-6 md:p-10 flex flex-col h-screen overflow-y-auto">
-        
-        <header class="flex flex-col md:flex-row md:justify-between md:items-center mb-10 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div class="space-y-4 text-right">
             <div>
-                <h2 class="text-3xl font-bold text-gray-800">مرحباً بك يا أحمد! 👋</h2>
-                <p class="text-gray-500 mt-2">السنة الثالثة إعدادي - المسار الدولي</p>
+                <label class="block text-gray-700 font-bold mb-2">البريد الإلكتروني</label>
+                <input type="email" id="email" class="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 outline-none text-left" dir="ltr" placeholder="student@example.com">
             </div>
-            <div id="coin-badge" class="mt-4 md:mt-0 bg-orange-50 text-orange-600 px-6 py-3 rounded-2xl font-bold flex items-center gap-3 shadow-sm border border-orange-200 transform transition duration-300">
-                <span class="text-2xl">🪙</span>
-                <div>
-                    <div class="text-xs text-orange-400">رصيد النقاط</div>
-                    <div class="text-xl leading-none" id="user-coins">1250</div>
-                </div>
-            </div>
-        </header>
-
-        <div id="view-dashboard" class="view-section">
-            <h3 class="text-2xl font-bold mb-6 text-gray-700">تقدم المقررات الدراسية</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="font-bold text-xl text-green-700">علوم الحياة والأرض (SVT)</h3>
-                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">وحدة التربية الغذائية</span>
-                    </div>
-                    <div class="w-full bg-gray-100 rounded-full h-2.5 mb-2">
-                        <div class="bg-green-500 h-2.5 rounded-full" style="width: 80%;"></div>
-                    </div>
-                    <p class="text-sm text-gray-500 font-semibold mb-4">تم إنجاز 80%</p>
-                    <button class="w-full bg-green-50 text-green-700 py-2.5 rounded-xl font-bold hover:bg-green-100 transition">متابعة الدرس</button>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <h3 class="font-bold text-xl text-blue-900 mb-4">الرياضيات</h3>
-                    <div class="w-full bg-gray-100 rounded-full h-2.5 mb-2">
-                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 45%;"></div>
-                    </div>
-                    <p class="text-sm text-gray-500 font-semibold mb-4">تم إنجاز 45%</p>
-                    <button class="w-full bg-blue-50 text-blue-600 py-2.5 rounded-xl font-bold hover:bg-blue-100 transition">متابعة الدرس</button>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <h3 class="font-bold text-xl text-purple-700 mb-4">الفيزياء والكيمياء</h3>
-                    <div class="w-full bg-gray-100 rounded-full h-2.5 mb-2">
-                        <div class="bg-purple-500 h-2.5 rounded-full" style="width: 15%;"></div>
-                    </div>
-                    <p class="text-sm text-gray-500 font-semibold mb-4">تم إنجاز 15%</p>
-                    <button class="w-full bg-purple-50 text-purple-600 py-2.5 rounded-xl font-bold hover:bg-purple-100 transition">متابعة الدرس</button>
-                </div>
+            <div>
+                <label class="block text-gray-700 font-bold mb-2">كلمة المرور</label>
+                <input type="password" id="password" class="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 outline-none text-left" dir="ltr" placeholder="********">
             </div>
         </div>
 
-        <div id="view-quiz" class="view-section hidden-view">
-            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 max-w-3xl mx-auto">
-                <div class="flex justify-between items-center mb-8 border-b pb-4">
-                    <div>
-                        <h3 class="text-2xl font-bold text-gray-800">اختبار سريع: علوم الحياة والأرض</h3>
-                        <p class="text-gray-500 mt-1">درس: الهضم والامتصاص</p>
-                    </div>
-                    <span class="bg-orange-100 text-orange-600 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1"><span class="text-lg">🪙</span> +50 نقطة</span>
-                </div>
-                
-                <p class="text-xl mb-6 font-semibold text-gray-700">ما هو العضو المسؤول عن امتصاص مواد القيت (Nutriments) وانتقالها إلى الدم؟</p>
-                
-                <div class="space-y-4">
-                    <label class="flex items-center p-5 border-2 rounded-xl cursor-pointer hover:bg-gray-50 hover:border-blue-200 transition">
-                        <input type="radio" name="svt_q1" value="stomach" class="w-5 h-5 text-blue-600 ml-4">
-                        <span class="text-lg">المعدة (L'estomac)</span>
-                    </label>
-                    <label class="flex items-center p-5 border-2 rounded-xl cursor-pointer hover:bg-gray-50 hover:border-blue-200 transition">
-                        <input type="radio" name="svt_q1" value="small_intestine" class="w-5 h-5 text-blue-600 ml-4">
-                        <span class="text-lg">المعي الدقيق (L'intestin grêle)</span>
-                    </label>
-                    <label class="flex items-center p-5 border-2 rounded-xl cursor-pointer hover:bg-gray-50 hover:border-blue-200 transition">
-                        <input type="radio" name="svt_q1" value="large_intestine" class="w-5 h-5 text-blue-600 ml-4">
-                        <span class="text-lg">المعي الغليظ (Le gros intestin)</span>
-                    </label>
-                </div>
-                
-                <button onclick="submitQuiz()" class="mt-8 w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg hover:shadow-xl">تحقق من الإجابة</button>
-                <div id="quiz-result" class="mt-6 text-center font-bold text-lg hidden p-4 rounded-xl"></div>
-            </div>
+        <div id="auth-error" class="mt-4 text-red-500 font-bold text-sm hidden-view"></div>
+
+        <div class="mt-8 space-y-3">
+            <button onclick="logIn()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">تسجيل الدخول</button>
+            <button onclick="signUp()" class="w-full bg-orange-100 text-orange-600 py-3 rounded-xl font-bold hover:bg-orange-200 transition">إنشاء حساب جديد</button>
         </div>
+    </div>
 
-        <div id="view-bot" class="view-section hidden-view flex-1 flex flex-col">
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 flex-1 flex flex-col overflow-hidden max-w-4xl mx-auto w-full h-[600px]">
-                <div class="bg-slate-900 p-5 text-white flex items-center gap-4">
-                    <div class="text-4xl bg-slate-800 p-2 rounded-full">🤖</div>
-                    <div>
-                        <h3 class="font-bold text-lg">بيروني بوت (مساعدك التعليمي)</h3>
-                        <p class="text-sm text-green-400 flex items-center gap-1"><span class="w-2 h-2 bg-green-400 rounded-full inline-block"></span> متصل الآن</p>
-                    </div>
-                </div>
-
-                <div id="chat-box" class="flex-1 p-6 overflow-y-auto bg-slate-50 space-y-6">
-                    <div class="flex items-start gap-4 w-5/6">
-                        <div class="text-3xl mt-1">🤖</div>
-                        <div class="bg-white p-4 rounded-2xl rounded-tr-none shadow-sm border border-gray-100 text-gray-700 leading-relaxed">
-                            أهلاً بك في أكاديمية البيروني! أنا المساعد الذكي. هل لديك سؤال حول دروسك اليوم؟ يمكنني مساعدتك في تبسيط أي مفهوم علمي.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-4 bg-white border-t flex gap-3">
-                    <input type="text" id="chat-input" placeholder="اكتب سؤالك هنا... (مثال: ما هي الخلية؟)" class="flex-1 border-2 border-gray-200 p-4 rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 transition text-lg" onkeypress="handleKeyPress(event)">
-                    <button onclick="sendMessage()" class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-md text-lg">إرسال</button>
-                </div>
-            </div>
+    <!-- 2. لوحة تحكم التلميذ (مخفية في البداية) -->
+    <div id="dashboard-section" class="hidden-view w-full h-screen flex flex-col items-center justify-center">
+        <div class="bg-white p-10 rounded-3xl shadow-lg text-center max-w-2xl w-full border border-gray-100">
+            <h1 class="text-4xl font-bold text-green-600 mb-4">🎉 أهلاً بك في الأكاديمية!</h1>
+            <p class="text-xl text-gray-600 mb-2">لقد تم تسجيل دخولك بنجاح وربطك بقاعدة البيانات.</p>
+            <p class="text-gray-500 font-bold mb-8">البريد: <span id="user-email-display" class="text-blue-600"></span></p>
+            
+            <button onclick="logOut()" class="bg-red-50 text-red-600 px-8 py-3 rounded-xl font-bold hover:bg-red-100 transition">تسجيل الخروج</button>
         </div>
-    </main>
+    </div>
 
     <script>
-        let currentCoins = 1250;
-        let quizAnswered = false;
+        // === إعداد اتصال Supabase ===
+        // ضع مفاتيحك هنا بدلاً من النصوص بين علامتي التنصيص
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL'; 
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function switchView(viewName) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden-view'));
-            document.querySelectorAll('aside button').forEach(el => {
-                el.classList.remove('bg-blue-600', 'shadow-md');
-                el.classList.add('hover:bg-slate-800');
+        // واجهات النظام
+        const authSection = document.getElementById('auth-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const errorDiv = document.getElementById('auth-error');
+
+        // === 1. دالة إنشاء الحساب (Sign Up) ===
+        async function signUp() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            errorDiv.classList.add('hidden-view');
+
+            if(!email || !password) {
+                showError("الرجاء إدخال البريد وكلمة المرور");
+                return;
+            }
+
+            // إرسال البيانات لقاعدة البيانات
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
             });
 
-            document.getElementById(`view-${viewName}`).classList.remove('hidden-view');
-            const activeBtn = document.getElementById(`nav-${viewName}`);
-            activeBtn.classList.remove('hover:bg-slate-800');
-            activeBtn.classList.add('bg-blue-600', 'shadow-md');
-        }
-
-        function submitQuiz() {
-            if (quizAnswered) return;
-            const selected = document.querySelector('input[name="svt_q1"]:checked');
-            const resultDiv = document.getElementById('quiz-result');
-            
-            if (!selected) { alert("الرجاء اختيار إجابة أولاً!"); return; }
-
-            resultDiv.classList.remove('hidden');
-
-            if (selected.value === "small_intestine") {
-                resultDiv.innerHTML = "🎉 إجابة صحيحة! يتميز المعي الدقيق بوجود خملات معوية تزيد من مساحة الامتصاص.";
-                resultDiv.className = "mt-6 text-center font-bold text-lg text-green-700 bg-green-50 border border-green-200 p-4 rounded-xl";
-                addCoins(50);
+            if (error) {
+                showError(error.message);
             } else {
-                resultDiv.innerHTML = "❌ إجابة خاطئة. تذكر أن المعدة تهضم الطعام، لكن الامتصاص الفعلي لمواد القيت نحو الدم يتم في المعي الدقيق.";
-                resultDiv.className = "mt-6 text-center font-bold text-lg text-red-600 bg-red-50 border border-red-200 p-4 rounded-xl";
+                alert("تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.");
             }
-            quizAnswered = true;
         }
 
-        function addCoins(amount) {
-            currentCoins += amount;
-            document.getElementById('user-coins').innerText = currentCoins;
-            const badge = document.getElementById('coin-badge');
-            badge.classList.add('scale-110', 'bg-green-100', 'border-green-300');
-            setTimeout(() => badge.classList.remove('scale-110', 'bg-green-100', 'border-green-300'), 500);
+        // === 2. دالة تسجيل الدخول (Log In) ===
+        async function logIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            errorDiv.classList.add('hidden-view');
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                showError("البيانات غير صحيحة، تأكد من البريد وكلمة المرور.");
+            } else {
+                showDashboard(data.user.email);
+            }
         }
 
-        function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
+        // === 3. دالة تسجيل الخروج (Log Out) ===
+        async function logOut() {
+            await supabase.auth.signOut();
+            authSection.classList.remove('hidden-view');
+            dashboardSection.classList.add('hidden-view');
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
 
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            if (!message) return;
-            const chatBox = document.getElementById('chat-box');
+        // إظهار الأخطاء
+        function showError(msg) {
+            errorDiv.innerText = msg;
+            errorDiv.classList.remove('hidden-view');
+        }
 
-            chatBox.innerHTML += `
-                <div class="flex items-start gap-4 w-5/6 mr-auto flex-row-reverse">
-                    <div class="bg-blue-600 text-white p-4 rounded-2xl rounded-tl-none shadow-sm text-lg">${message}</div>
-                </div>`;
-            input.value = '';
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            setTimeout(() => {
-                chatBox.innerHTML += `
-                    <div class="flex items-start gap-4 w-5/6">
-                        <div class="text-3xl mt-1">🤖</div>
-                        <div class="bg-white p-4 rounded-2xl rounded-tr-none shadow-sm border border-gray-100 text-gray-700 leading-relaxed text-lg">
-                            سؤال ممتاز! في هذه النسخة التجريبية أنا مبرمج للرد التلقائي. في النسخة النهائية سيتم ربطي بقاعدة بيانات المقررات المغربية للإجابة بدقة علمية عالية.
-                        </div>
-                    </div>`;
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }, 1000);
+        // إظهار لوحة التحكم بعد الدخول
+        function showDashboard(email) {
+            authSection.classList.add('hidden-view');
+            dashboardSection.classList.remove('hidden-view');
+            document.getElementById('user-email-display').innerText = email;
         }
     </script>
 </body>
