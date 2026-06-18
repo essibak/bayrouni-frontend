@@ -51,12 +51,14 @@
         </div>
     </div>
 
-    <script>
+ <script>
         // === إعداد اتصال Supabase ===
-        // ضع مفاتيحك هنا بدلاً من النصوص بين علامتي التنصيص
         const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_AO_MAHgD';
+        const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_A0_MAHgD';
+
+        // تعريف المتغير مرة واحدة فقط
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         // واجهات النظام
         const authSection = document.getElementById('auth-section');
         const dashboardSection = document.getElementById('dashboard-section');
@@ -73,7 +75,6 @@
                 return;
             }
 
-            // إرسال البيانات لقاعدة البيانات
             const { data, error } = await supabase.auth.signUp({
                 email: email,
                 password: password,
@@ -113,13 +114,11 @@
             document.getElementById('password').value = '';
         }
 
-        // إظهار الأخطاء
         function showError(msg) {
             errorDiv.innerText = msg;
             errorDiv.classList.remove('hidden-view');
         }
 
-        // إظهار لوحة التحكم بعد الدخول
         function showDashboard(email) {
             authSection.classList.add('hidden-view');
             dashboardSection.classList.remove('hidden-view');
