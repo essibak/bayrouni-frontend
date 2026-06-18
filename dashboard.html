@@ -975,6 +975,7 @@ function togglePlay(el){
   playing=!playing;
   document.getElementById('play-icon').textContent=playing?'⏸':'▶';
   if(playing){
+    
     let p=0;
     vidTimer=setInterval(()=>{
       p=Math.min(p+.5,100);
@@ -982,7 +983,43 @@ function togglePlay(el){
       if(p>=100){clearInterval(vidTimer);playing=false;document.getElementById('play-icon').textContent='▶';}
     },100);
   } else clearInterval(vidTimer);
-}
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // 1. إعداد الاتصال
+  const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
+  // ⚠️ تنبيه: ضع مفتاحك الطويل والصحيح بين علامتي التنصيص هنا
+  const SUPABASE_ANON_KEY = 'ضع_مفتاحك_الطويل_هنا'; 
+  
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function loadUserData() {
+    // 2. التحقق من وجود جلسة (هل التلميذ مسجل دخوله فعلاً؟)
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+    
+    if (!session) {
+      // إذا لم يكن مسجلاً، اطرده لصفحة الدخول
+      window.location.replace('login.html');
+      return;
+    }
+
+    // 3. جلب الاسم الذي أدخله التلميذ أثناء تسجيل الدخول
+    const fullName = session.user.user_metadata.full_name || 'بطل البيروني';
+    const firstName = fullName.split(' ')[0]; // نأخذ الاسم الأول فقط للترحيب
+
+    // 4. تغيير الأسماء في التصميم
+    const welcomeMsg = document.querySelector('.wb-h');
+    if (welcomeMsg) welcomeMsg.innerHTML = `مرحباً، ${firstName} 👋`;
+
+    const sidebarName = document.querySelector('.sb-n');
+    if (sidebarName) sidebarName.innerHTML = fullName;
+    
+    const settingsName = document.querySelector('#t-settings .sb-n'); // في صفحة الإعدادات
+    if (settingsName) settingsName.innerHTML = fullName;
+  }
+
+  // تشغيل الدالة فور تحميل الصفحة
+  loadUserData();
 </script>
 </body>
 </html>
