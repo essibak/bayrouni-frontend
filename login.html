@@ -29,6 +29,7 @@
     .get-code a { color: var(--teal); font-weight: bold; text-decoration: none; }
     .get-code a:hover { text-decoration: underline; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -56,45 +57,204 @@
   </div>
 
   <script>
-    // مفاتيح الاتصال بقاعدة البيانات
-    const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_A0_MAHgD';
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ═══════════════════════════════════
+// 1. إعداد الاتصال الحقيقي بقاعدة البيانات
+// ═══════════════════════════════════
+const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
+// ⚠️ ضع مفتاحك الطويل والصحيح هنا بين علامتي التنصيص
+const SUPABASE_ANON_KEY = 'ضع_مفتاحك_الطويل_هنا'; 
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const errorDiv = document.getElementById('error-msg');
+let remotePhone = '';
 
-    function showError(msg) {
-      errorDiv.innerText = msg;
-      errorDiv.style.display = 'block';
+// ═══════════════════════════════════
+// 2. دوال الواجهة والتنقل (من Claude)
+// ═══════════════════════════════════
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function back(to) { show(to); }
+
+function selectType(type) {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('tb-'+type).classList.add('sel');
+  setTimeout(() => show('s1-'+type), 180);
+}
+
+function goTrial() { show('s4-trial'); }
+function goLogin() { show('s3-login'); }
+function goToPricing() { window.location.href = 'pricing.html'; }
+function contactWhatsApp() { window.open('https://wa.me/212600000000', '_blank'); }
+function enterDashboard() { window.location.href = 'dashboard.html'; }
+
+function setLoading(btnId, spinnerId, on) {
+  const sp = document.getElementById(spinnerId);
+  if (sp) sp.style.display = on ? 'block' : 'none';
+  if (btnId) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      btn.disabled = on;
+      const span = btn.querySelector('span');
+      if (span) span.style.opacity = on ? '0' : '1';
     }
+  }
+}
 
-    async function loginWithCode() {
-      const name = document.getElementById('fullName').value.trim();
-      const code = document.getElementById('accessCode').value.trim();
-      errorDiv.style.display = 'none';
+function shake(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('err');
+  el.animate([
+    {transform:'translateX(0)'}, {transform:'translateX(-6px)'},
+    {transform:'translateX(6px)'}, {transform:'translateX(-4px)'},
+    {transform:'translateX(0)'}
+  ], {duration:300, easing:'ease'});
+  el.focus();
+  setTimeout(() => el.classList.remove('err'), 1500);
+}
 
-      if(!name || !code) { showError("الرجاء إدخال الاسم وكود الدخول"); return; }
+function showSuccess(title, name, sub, cta) {
+  document.getElementById('success-title').textContent = title;
+  document.getElementById('success-name').textContent = name;
+  document.getElementById('success-sub').innerHTML = sub.replace(/\n/g,'<br/>');
+  document.getElementById('success-cta').textContent = cta;
+  show('s-success');
+}
 
-      // تحويل الكود إلى صيغة تقبلها قاعدة البيانات (Pseudo-Email)
-      const cleanCode = code.toLowerCase().replace(/\s/g, '');
-      const pseudoEmail = cleanCode + "@biruni.ma";
-      
-      // محاولة الدخول
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ 
-        email: pseudoEmail, 
-        password: cleanCode 
-      });
+// ═══════════════════════════════════
+// 3. محرك تسجيل الدخول (السحر الحقيقي)
+// ═══════════════════════════════════
+async function loginWithSupabase(code, name, btnId, spinnerId, successMsg, isTrial = false) {
+  setLoading(btnId, spinnerId, true);
+  
+  // تنظيف الكود وتحويله لإيميل وهمي
+  const cleanCode = code.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const pseudoEmail = cleanCode + "@biruni.ma";
 
-      if (error) { 
-        showError("كود الدخول غير صحيح. تأكد من كتابته بشكل سليم."); 
-      } else { 
-        // إذا نجح الدخول، نقوم بتحديث اسم التلميذ في قاعدة البيانات ليتطابق مع ما أدخله للتو
-        await supabaseClient.auth.updateUser({
-          data: { full_name: name }
-        });
-        // التوجيه إلى لوحة التحكم
-        window.location.href = 'dashboard.html'; 
-      }
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: pseudoEmail,
+    password: cleanCode
+  });
+
+  setLoading(btnId, spinnerId, false);
+
+  if (error) {
+    return false; // فشل الدخول
+  } else {
+    // تحديث الاسم في قاعدة البيانات
+    if (name) {
+      await supabaseClient.auth.updateUser({ data: { full_name: name } });
+    }
+    showSuccess(
+      'أهلاً بك يا ' + (name || 'بطل') + '!',
+      name || '',
+      successMsg,
+      'ادخل للوحة التحكم 🚀'
+    );
+    return true; // نجاح الدخول
+  }
+}
+
+// -- دخول تلميذ المركز --
+async function submitCenter() {
+  const code = document.getElementById('center-code').value.trim();
+  const name = document.getElementById('center-name').value.trim();
+  
+  if (!code) { shake('center-code'); return; }
+  if (!name) { shake('center-name'); return; }
+
+  const success = await loginWithSupabase(code, name, 'center-btn', 'center-spinner', '🏫 تلميذ المركز · وصول مجاني كامل\nسعيدون بانضمامك لأكاديمية البيروني 🌿');
+  if (!success) {
+    shake('center-code');
+    const st = document.getElementById('center-code-status');
+    st.style.display = 'block'; st.style.background = 'var(--cl)'; st.style.color = 'var(--cor)';
+    st.textContent = '❌ الكود غير صحيح، تأكد من كتابته بشكل سليم.';
+  }
+}
+
+// -- دخول تلميذ عن بعد (نظهر شاشة الهاتف الوهمية كنوع من الفخامة ثم نسجل دخوله) --
+function submitRemote() {
+  const name  = document.getElementById('remote-name').value.trim();
+  const phone = document.getElementById('remote-phone').value.trim();
+  const code  = document.getElementById('remote-code').value.trim();
+
+  if (!name)  { shake('remote-name');  return; }
+  if (!phone || phone.length < 10) { shake('remote-phone'); return; }
+  if (!code)  { shake('remote-code');  return; }
+
+  remotePhone = phone;
+  setLoading('remote-btn', 'remote-spinner', true);
+  setTimeout(() => {
+    setLoading('remote-btn', 'remote-spinner', false);
+    document.getElementById('otp-phone-display').textContent = phone;
+    show('s2-otp'); // الذهاب لشاشة الكود
+    document.getElementById('otp0').focus();
+  }, 600);
+}
+
+// -- تأكيد رقم الهاتف لتلميذ عن بعد --
+async function verifyOTP() {
+  const otpCode = [0,1,2,3].map(i => document.getElementById('otp'+i).value).join('');
+  if (otpCode.length < 4) return;
+
+  const code = document.getElementById('remote-code').value.trim();
+  const name = document.getElementById('remote-name').value.trim();
+
+  const success = await loginWithSupabase(code, name, null, 'otp-spinner', '🌐 تعلّم عن بُعد · تم التحقق بنجاح ✅');
+  if (!success) {
+    document.getElementById('otp-err').style.display = 'block';
+    document.getElementById('otp-err').textContent = 'كود الاشتراك غير صالح، تأكد من اشتراكك.';
+    document.querySelectorAll('.code-box').forEach(b => b.classList.add('err'));
+  }
+}
+
+// -- تسجيل الدخول العادي --
+async function submitLogin() {
+  const name = document.getElementById('login-name').value.trim();
+  const code = document.getElementById('login-code').value.trim();
+
+  if (!name) { shake('login-name'); return; }
+  if (!code) { shake('login-code'); return; }
+
+  const success = await loginWithSupabase(code, name, 'login-btn-main', 'login-spinner', 'تم التحقق بنجاح ✅');
+  if (!success) {
+    alert('❌ الاسم أو الكود غير صحيح. تأكد من معلوماتك.');
+  }
+}
+
+// -- التجربة المجانية --
+async function startTrial() {
+  const name = document.getElementById('trial-name').value.trim();
+  if (!name) { shake('trial-name'); return; }
+
+  // نستخدم حساب التجربة الذي أنشأناه سابقا trial2026
+  await loginWithSupabase('trial2026', name, null, 'trial-spinner', '🎁 تجربة مجانية محدودة\n6 دروس · 10 رسائل ذكاء اصطناعي', true);
+}
+
+// نقل تلقائي للخانات في شاشة الهاتف
+function otpNav(inp, idx) {
+  inp.classList.toggle('filled', inp.value.length > 0);
+  if (inp.value && idx < 3) document.getElementById('otp'+(idx+1)).focus();
+  if (idx === 3 && inp.value) verifyOTP();
+}
+
+// تنسيق تلقائي للكود
+document.querySelectorAll('[id$="-code"]').forEach(inp => {
+  inp.addEventListener('input', function() {
+    let v = this.value.replace(/[^A-Z0-9]/ig,'').toUpperCase();
+    this.value = v;
+  });
+});
+
+// التعامل مع الروابط القادمة من الرئيسية
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  const mode = p.get('mode');
+  if (mode === 'trial') setTimeout(() => show('s4-trial'), 100);
+  else if (mode === 'login') setTimeout(() => show('s3-login'), 100);
+})();      }
     }
   </script>
 </body>
