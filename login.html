@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسجيل الدخول — أكاديمية البيروني</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --teal: #1D9E75; --td: #085041; --bg: #F5F4EF; --wh: #fff; --dk: #1a1a18;
+      --gm: #D3D1C7; --gl: #EBEBE4; --r: 16px;
+      --font: 'Cairo', system-ui, sans-serif;
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--dk); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .auth-card { background: var(--wh); padding: 40px; border-radius: var(--r); box-shadow: 0 8px 30px rgba(0,0,0,0.06); width: 100%; max-width: 400px; text-align: center; border: 1px solid var(--gm); }
+    .logo-icon { font-size: 44px; margin-bottom: 12px; display: block; }
+    h1 { font-size: 26px; font-weight: 800; margin: 0 0 8px; color: var(--td); }
+    p { font-size: 14px; color: #5F5E5A; margin-bottom: 28px; }
+    .input-group { margin-bottom: 16px; text-align: right; }
+    .input-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .input-group input { width: 100%; padding: 14px; border: 1px solid var(--gm); border-radius: 10px; font-family: var(--font); font-size: 14px; box-sizing: border-box; outline: none; transition: 0.2s; direction: rtl;}
+    .input-group input:focus { border-color: var(--teal); }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-family: var(--font); font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-bottom: 12px; }
+    .btn-primary { background: var(--teal); color: var(--wh); }
+    .btn-primary:hover { background: var(--td); }
+    #error-msg { color: #D85A30; font-size: 13px; font-weight: 700; margin-bottom: 16px; display: none; background: #FAECE7; padding: 10px; border-radius: 8px; }
+    .get-code { margin-top: 20px; font-size: 13px; color: #5F5E5A; }
+    .get-code a { color: var(--teal); font-weight: bold; text-decoration: none; }
+    .get-code a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-card">
+    <span class="logo-icon">🌿</span>
+    <h1>أكاديمية البيروني</h1>
+    <p>أدخل اسمك وكود الدخول الخاص بك</p>
+
+    <div id="error-msg"></div>
+
+    <div class="input-group">
+      <label>الاسم الكامل</label>
+      <input type="text" id="fullName" placeholder="مثال: أيمن بوزيان" />
+    </div>
+    <div class="input-group">
+      <label>كود الدخول (الكود السري)</label>
+      <input type="password" id="accessCode" placeholder="أدخل الكود المكون من حروف وأرقام" dir="ltr" style="text-align: left;" />
+    </div>
+
+    <button class="btn btn-primary" onclick="loginWithCode()">دخول لمنصتي</button>
+
+    <div class="get-code">
+      ليس لديك كود دخول؟ <a href="pricing.html">احصل عليه الآن</a>
+    </div>
+  </div>
+
+  <script>
+    // مفاتيح الاتصال بقاعدة البيانات
+    const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_A0_MAHgD';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const errorDiv = document.getElementById('error-msg');
+
+    function showError(msg) {
+      errorDiv.innerText = msg;
+      errorDiv.style.display = 'block';
+    }
+
+    async function loginWithCode() {
+      const name = document.getElementById('fullName').value.trim();
+      const code = document.getElementById('accessCode').value.trim();
+      errorDiv.style.display = 'none';
+
+      if(!name || !code) { showError("الرجاء إدخال الاسم وكود الدخول"); return; }
+
+      // تحويل الكود إلى صيغة تقبلها قاعدة البيانات (Pseudo-Email)
+      const cleanCode = code.toLowerCase().replace(/\s/g, '');
+      const pseudoEmail = cleanCode + "@biruni.ma";
+      
+      // محاولة الدخول
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ 
+        email: pseudoEmail, 
+        password: cleanCode 
+      });
+
+      if (error) { 
+        showError("كود الدخول غير صحيح. تأكد من كتابته بشكل سليم."); 
+      } else { 
+        // إذا نجح الدخول، نقوم بتحديث اسم التلميذ في قاعدة البيانات ليتطابق مع ما أدخله للتو
+        await supabaseClient.auth.updateUser({
+          data: { full_name: name }
+        });
+        // التوجيه إلى لوحة التحكم
+        window.location.href = 'dashboard.html'; 
+      }
+    }
+  </script>
+</body>
+</html>
