@@ -51,13 +51,13 @@
         </div>
     </div>
 
- <script>
+<script>
         // === إعداد اتصال Supabase ===
         const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_A0_MAHgD';
 
-        // تعريف المتغير مرة واحدة فقط
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // غيرنا الاسم هنا إلى supabaseClient لتجنب التعارض
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // واجهات النظام
         const authSection = document.getElementById('auth-section');
@@ -75,7 +75,8 @@
                 return;
             }
 
-            const { data, error } = await supabase.auth.signUp({
+            // استخدمنا الاسم الجديد هنا
+            const { data, error } = await supabaseClient.auth.signUp({
                 email: email,
                 password: password,
             });
@@ -93,7 +94,8 @@
             const password = document.getElementById('password').value;
             errorDiv.classList.add('hidden-view');
 
-            const { data, error } = await supabase.auth.signInWithPassword({
+            // استخدمنا الاسم الجديد هنا
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: email,
                 password: password,
             });
@@ -107,7 +109,8 @@
 
         // === 3. دالة تسجيل الخروج (Log Out) ===
         async function logOut() {
-            await supabase.auth.signOut();
+            // استخدمنا الاسم الجديد هنا
+            await supabaseClient.auth.signOut();
             authSection.classList.remove('hidden-view');
             dashboardSection.classList.add('hidden-view');
             document.getElementById('email').value = '';
