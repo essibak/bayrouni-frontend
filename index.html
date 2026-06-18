@@ -1,132 +1,634 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - أكاديمية البيروني</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- استدعاء مكتبة Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
-        .hidden-view { display: none !important; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>أكاديمية البيروني — تعلّم بلا حدود</title>
+  <meta name="description" content="منصة تعليمية رقمية للتعليم الإعدادي بالمغرب — رياضيات، علوم، فيزياء، لغات" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body>
 
-    <!-- 1. شاشة تسجيل الدخول / إنشاء حساب -->
-    <div id="auth-section" class="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 max-w-md w-full text-center">
-        <div class="text-5xl mb-4">🚀</div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">أكاديمية البيروني</h2>
-        <p class="text-gray-500 mb-8">سجل دخولك لمتابعة دروسك ونقاطك</p>
-
-        <div class="space-y-4 text-right">
-            <div>
-                <label class="block text-gray-700 font-bold mb-2">البريد الإلكتروني</label>
-                <input type="email" id="email" class="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 outline-none text-left" dir="ltr" placeholder="student@example.com">
-            </div>
-            <div>
-                <label class="block text-gray-700 font-bold mb-2">كلمة المرور</label>
-                <input type="password" id="password" class="w-full border-2 border-gray-200 p-3 rounded-xl focus:border-blue-500 outline-none text-left" dir="ltr" placeholder="********">
-            </div>
-        </div>
-
-        <div id="auth-error" class="mt-4 text-red-500 font-bold text-sm hidden-view"></div>
-
-        <div class="mt-8 space-y-3">
-            <button onclick="logIn()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">تسجيل الدخول</button>
-            <button onclick="signUp()" class="w-full bg-orange-100 text-orange-600 py-3 rounded-xl font-bold hover:bg-orange-200 transition">إنشاء حساب جديد</button>
-        </div>
+<!-- ═══════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════ -->
+<header class="navbar" id="navbar">
+  <div class="container nav-inner">
+    <a href="#" class="logo" aria-label="أكاديمية البيروني">
+      <span class="logo-icon">🌿</span>
+      <span class="logo-ar">أكاديمية البيروني</span>
+      <span class="logo-fr">Académie Al-Biruni</span>
+    </a>
+    <nav class="nav-links" aria-label="التنقل الرئيسي">
+      <a href="#subjects">المواد</a>
+      <a href="#how">كيف تعمل</a>
+      <a href="#teachers">أساتذة</a>
+      <a href="pricing.html">الأسعار</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="pricing.html" class="btn btn-ghost">تسجيل الدخول</a>
+      <a href="pricing.html" class="btn btn-primary">ابدأ مجاناً</a>
     </div>
+    <button class="hamburger" id="hamburger" aria-label="القائمة" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <nav class="mobile-menu" id="mobile-menu" aria-hidden="true">
+    <a href="#subjects" class="mob-link">المواد الدراسية</a>
+    <a href="#how" class="mob-link">كيف تعمل</a>
+    <a href="#teachers" class="mob-link">أساتذتنا</a>
+    <a href="pricing.html" class="mob-link">الأسعار</a>
+    <a href="pricing.html" class="btn btn-primary" style="margin:1rem 1.5rem 0">ابدأ مجاناً</a>
+  </nav>
+</header>
 
-    <!-- 2. لوحة تحكم التلميذ (مخفية في البداية) -->
-    <div id="dashboard-section" class="hidden-view w-full h-screen flex flex-col items-center justify-center">
-        <div class="bg-white p-10 rounded-3xl shadow-lg text-center max-w-2xl w-full border border-gray-100">
-            <h1 class="text-4xl font-bold text-green-600 mb-4">🎉 أهلاً بك في الأكاديمية!</h1>
-            <p class="text-xl text-gray-600 mb-2">لقد تم تسجيل دخولك بنجاح وربطك بقاعدة البيانات.</p>
-            <p class="text-gray-500 font-bold mb-8">البريد: <span id="user-email-display" class="text-blue-600"></span></p>
-            
-            <button onclick="logOut()" class="bg-red-50 text-red-600 px-8 py-3 rounded-xl font-bold hover:bg-red-100 transition">تسجيل الخروج</button>
+<!-- ═══════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg-grid" aria-hidden="true"></div>
+  <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
+  <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
+  <div class="container hero-inner">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        المنصة التعليمية الأولى في المغرب للإعدادي
+      </div>
+      <h1 class="hero-title">
+        تفوّق في دراستك<br />
+        <span class="hero-title-accent">مع أفضل الأساتذة</span>
+      </h1>
+      <p class="hero-subtitle">
+        دروس مصورة، تمارين تفاعلية، ومساعد ذكي يشرح لك في أي وقت —
+        لتلاميذ السنة الأولى والثانية والثالثة إعدادي.
+      </p>
+      <div class="hero-actions">
+        <a href="pricing.html" class="btn btn-primary btn-lg">
+          ابدأ مجاناً الآن
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#video" class="btn btn-ghost btn-lg btn-play">
+          <span class="play-icon" aria-hidden="true">▶</span>
+          شاهد كيف تعمل
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num" data-target="4800">0</span><span class="stat-num-plus">+</span>
+          <span class="stat-label">تلميذ مسجّل</span>
         </div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="320">0</span><span class="stat-num-plus">+</span>
+          <span class="stat-label">درس مصوّر</span>
+        </div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="98">0</span><span class="stat-num-plus">%</span>
+          <span class="stat-label">معدل الرضا</span>
+        </div>
+        <div class="stat-divider" aria-hidden="true"></div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="24">0</span><span class="stat-num-plus">/7</span>
+          <span class="stat-label">دعم فوري</span>
+        </div>
+      </div>
     </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="dashboard-preview">
+        <div class="dp-header">
+          <div class="dp-dots"><span></span><span></span><span></span></div>
+          <span class="dp-title">لوحة التلميذ</span>
+        </div>
+        <div class="dp-body">
+          <div class="dp-welcome">مرحباً، أيمن 👋</div>
+          <div class="dp-progress-label">تقدّمك هذا الأسبوع</div>
+          <div class="dp-bar-wrap">
+            <div class="dp-bar" style="width:72%"></div>
+          </div>
+          <div class="dp-courses">
+            <div class="dp-course dp-course--active">
+              <span class="dp-course-icon">📐</span>
+              <div>
+                <div class="dp-course-name">الرياضيات — الهندسة</div>
+                <div class="dp-course-prog">الوحدة 3 · الدرس 4</div>
+              </div>
+              <span class="dp-course-badge">جديد</span>
+            </div>
+            <div class="dp-course">
+              <span class="dp-course-icon">🔬</span>
+              <div>
+                <div class="dp-course-name">علوم الحياة والأرض</div>
+                <div class="dp-course-prog">الوحدة 2 · الدرس 6</div>
+              </div>
+              <span class="dp-course-pct">85%</span>
+            </div>
+            <div class="dp-course">
+              <span class="dp-course-icon">⚗️</span>
+              <div>
+                <div class="dp-course-name">الفيزياء والكيمياء</div>
+                <div class="dp-course-prog">الوحدة 1 · الدرس 9</div>
+              </div>
+              <span class="dp-course-pct">60%</span>
+            </div>
+          </div>
+          <div class="dp-ai">
+            <span class="dp-ai-icon">🤖</span>
+            <span>المساعد الذكي جاهز للإجابة على أسئلتك</span>
+          </div>
+        </div>
+      </div>
+      <div class="floating-badge fb-1">
+        <span>🏆</span>
+        <div>
+          <div class="fb-title">إنجاز جديد!</div>
+          <div class="fb-sub">أتممت 10 دروس متتالية</div>
+        </div>
+      </div>
+      <div class="floating-badge fb-2">
+        <span>⭐</span>
+        <div>
+          <div class="fb-title">تقييم الدرس</div>
+          <div class="fb-stars">★★★★★ <span>4.9</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-<script>
-        // === إعداد اتصال Supabase ===
-        const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_AO_MAHgD';
+<!-- TRUSTED BY -->
+<div class="trusted-bar">
+  <div class="container">
+    <span class="trusted-label">موثوق به في:</span>
+    <div class="trusted-cities">
+      <span>مراكش</span>
+      <span>الدار البيضاء</span>
+      <span>الرباط</span>
+      <span>فاس</span>
+      <span>أكادير</span>
+      <span>مكناس</span>
+      <span>طنجة</span>
+      <span>ورزازات</span>
+    </div>
+  </div>
+</div>
 
-        // غيرنا الاسم هنا إلى supabaseClient لتجنب التعارض
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<!-- ═══════════════════════════════════════════
+     SUBJECTS
+════════════════════════════════════════════ -->
+<section class="subjects section" id="subjects">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">المواد الدراسية</div>
+      <h2 class="section-title">كل ما تحتاجه في مكان واحد</h2>
+      <p class="section-sub">المنهج المغربي الرسمي — من السنة الأولى إلى الثالثة إعدادي</p>
+    </div>
+    <div class="subjects-grid">
+      <div class="subject-card subject-card--math">
+        <div class="subject-icon">📐</div>
+        <h3>الرياضيات</h3>
+        <p>جبر، هندسة، إحصاء، دوال</p>
+        <div class="subject-meta">
+          <span>1AC · 2AC · 3AC</span>
+          <span>94 درس</span>
+        </div>
+        <a href="pricing.html" class="subject-cta">اكتشف الدروس ←</a>
+      </div>
+      <div class="subject-card subject-card--svt">
+        <div class="subject-icon">🔬</div>
+        <h3>علوم الحياة والأرض</h3>
+        <p>علم الأحياء، الجيولوجيا، البيئة</p>
+        <div class="subject-meta">
+          <span>1AC · 2AC · 3AC</span>
+          <span>78 درس</span>
+        </div>
+        <a href="pricing.html" class="subject-cta">اكتشف الدروس ←</a>
+      </div>
+      <div class="subject-card subject-card--pc">
+        <div class="subject-icon">⚗️</div>
+        <h3>الفيزياء والكيمياء</h3>
+        <p>ميكانيك، كهرباء، كيمياء</p>
+        <div class="subject-meta">
+          <span>1AC · 2AC · 3AC</span>
+          <span>82 درس</span>
+        </div>
+        <a href="pricing.html" class="subject-cta">اكتشف الدروس ←</a>
+      </div>
+      <div class="subject-card subject-card--ar">
+        <div class="subject-icon">📖</div>
+        <h3>اللغة العربية</h3>
+        <p>نحو، صرف، أدب، تعبير</p>
+        <div class="subject-meta">
+          <span>1AC · 2AC · 3AC</span>
+          <span>66 درس</span>
+        </div>
+        <a href="pricing.html" class="subject-cta">اكتشف الدروس ←</a>
+      </div>
+      <div class="subject-card subject-card--fr">
+        <div class="subject-icon">🇫🇷</div>
+        <h3>اللغة الفرنسية</h3>
+        <p>Grammaire, Expression écrite</p>
+        <div class="subject-meta">
+          <span>1AC · 2AC · 3AC</span>
+          <span>58 درس</span>
+        </div>
+        <a href="pricing.html" class="subject-cta">اكتشف الدروس ←</a>
+      </div>
+      <div class="subject-card subject-card--en">
+        <div class="subject-icon">🌐</div>
+        <h3>اللغة الإنجليزية</h3>
+        <p>Grammar, Reading, Speaking</p>
+        <div class="subject-meta">
+          <span>قريباً</span>
+          <span>—</span>
+        </div>
+        <span class="subject-cta coming">قريباً</span>
+      </div>
+    </div>
+  </div>
+</section>
 
-        // واجهات النظام
-        const authSection = document.getElementById('auth-section');
-        const dashboardSection = document.getElementById('dashboard-section');
-        const errorDiv = document.getElementById('auth-error');
+<!-- ═══════════════════════════════════════════
+     HOW IT WORKS
+════════════════════════════════════════════ -->
+<section class="how section section--alt" id="how">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">كيف تعمل المنصة</div>
+      <h2 class="section-title">ثلاث خطوات للتفوق</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" aria-hidden="true">01</div>
+        <div class="step-icon">✍️</div>
+        <h3>سجّل مجاناً</h3>
+        <p>أنشئ حسابك في أقل من دقيقة — ستجد أول درس من كل مادة مجاناً.</p>
+      </div>
+      <div class="step-arrow" aria-hidden="true">←</div>
+      <div class="step">
+        <div class="step-num" aria-hidden="true">02</div>
+        <div class="step-icon">🎯</div>
+        <h3>اختر مادتك ومستواك</h3>
+        <p>محتوى مخصص لكل سنة دراسية، مرتّب وفق المنهج المغربي الرسمي.</p>
+      </div>
+      <div class="step-arrow" aria-hidden="true">←</div>
+      <div class="step">
+        <div class="step-num" aria-hidden="true">03</div>
+        <div class="step-icon">🚀</div>
+        <h3>تعلّم وتقدّم</h3>
+        <p>فيديوهات شرح، تمارين، اختبارات، ومساعد ذكي يصحح ويرشد في كل لحظة.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-        // === 1. دالة إنشاء الحساب (Sign Up) ===
-        async function signUp() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            errorDiv.classList.add('hidden-view');
+<!-- ═══════════════════════════════════════════
+     FEATURES
+════════════════════════════════════════════ -->
+<section class="features section" id="features">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">ما يميزنا</div>
+      <h2 class="section-title">تجربة تعليمية كاملة</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card feature-card--large">
+        <div class="feature-tag">ذكاء اصطناعي</div>
+        <h3>مساعد البيروني الذكي</h3>
+        <p>اسأل أي سؤال بالعربية أو الفرنسية — يشرح، يصحح، ويقترح خطة مراجعة شخصية. متاح 24/7.</p>
+        <div class="ai-demo">
+          <div class="ai-msg ai-msg--user">ما هو قانون أوم؟</div>
+          <div class="ai-msg ai-msg--bot">
+            قانون أوم يقول: الشدة = الجهد ÷ المقاومة<br/>
+            <strong>I = U / R</strong><br/>
+            هل تريد تمريناً تطبيقياً؟ 🎯
+          </div>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-tag">محتوى</div>
+        <h3>فيديوهات HD احترافية</h3>
+        <p>شرح مفصّل مع سبورة رقمية، قابل للتحميل للمشاهدة بدون انترنت.</p>
+        <div class="feature-visual fv-video">
+          <div class="fv-play">▶</div>
+          <div class="fv-bar"></div>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-tag">تقييم</div>
+        <h3>اختبارات تفاعلية</h3>
+        <p>تصحيح فوري مع شرح الأخطاء، ومحاكاة كاملة للامتحانات الجهوية.</p>
+        <div class="feature-visual fv-quiz">
+          <div class="quiz-q">ما هي صيغة مساحة المثلث؟</div>
+          <div class="quiz-opts">
+            <span class="quiz-opt quiz-opt--correct">½ × قاعدة × ارتفاع ✓</span>
+            <span class="quiz-opt">قاعدة × ارتفاع</span>
+            <span class="quiz-opt">قاعدة²</span>
+          </div>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-tag">متابعة</div>
+        <h3>تقارير للآباء</h3>
+        <p>تقرير أسبوعي PDF يصل إلى هاتفك — الحضور، الدرجات، الوقت المقضي في الدراسة.</p>
+        <div class="feature-visual fv-report">
+          <div class="rpt-bar" style="height:60%"></div>
+          <div class="rpt-bar" style="height:80%"></div>
+          <div class="rpt-bar" style="height:45%"></div>
+          <div class="rpt-bar rpt-bar--accent" style="height:90%"></div>
+          <div class="rpt-bar" style="height:70%"></div>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-tag">بث مباشر</div>
+        <h3>حصص مباشرة تفاعلية</h3>
+        <p>أسئلة وأجوبة مباشرة مع الأستاذ، سبورة تفاعلية، وتسجيل تلقائي.</p>
+        <div class="feature-visual fv-live">
+          <div class="live-dot"></div>
+          <span>مباشر الآن — الرياضيات 2AC</span>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-tag">تحفيز</div>
+        <h3>نقاط وشارات وجوائز</h3>
+        <p>نظام تحفيز يشجعك على الاستمرار — سلاسل يومية، لوحة متصدرين، وشهادات معتمدة.</p>
+        <div class="feature-visual fv-badges">
+          <span title="إتمام الوحدة">🏆</span>
+          <span title="7 أيام متتالية">🔥</span>
+          <span title="درجة كاملة">💎</span>
+          <span title="نجم الأسبوع">⭐</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-            if(!email || !password) {
-                showError("الرجاء إدخال البريد وكلمة المرور");
-                return;
-            }
+<!-- ═══════════════════════════════════════════
+     TEACHERS
+════════════════════════════════════════════ -->
+<section class="teachers section section--alt" id="teachers">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">فريق التدريس</div>
+      <h2 class="section-title">أساتذة معتمدون ومتخصصون</h2>
+      <p class="section-sub">فريق من أفضل أساتذة المغرب، يدرّسون بشغف ويتابعون كل تلميذ</p>
+    </div>
+    <div class="teachers-grid">
+      <div class="teacher-card">
+        <div class="teacher-avatar" style="background: var(--teal-light)">
+          <span>أ.س</span>
+        </div>
+        <h3>أ. سعيد الأحمدي</h3>
+        <div class="teacher-subject">علوم الحياة والأرض — SVT</div>
+        <div class="teacher-stars">★★★★★ <span>4.9</span></div>
+        <div class="teacher-meta">
+          <span>📍 مراكش</span>
+          <span>👥 1,240 تلميذ</span>
+        </div>
+      </div>
+      <div class="teacher-card teacher-card--featured">
+        <div class="teacher-badge">أكثر تقييماً</div>
+        <div class="teacher-avatar" style="background: var(--purple-light)">
+          <span>أ.م</span>
+        </div>
+        <h3>أ. مريم الكاتبي</h3>
+        <div class="teacher-subject">الرياضيات — Maths</div>
+        <div class="teacher-stars">★★★★★ <span>4.97</span></div>
+        <div class="teacher-meta">
+          <span>📍 الدار البيضاء</span>
+          <span>👥 2,100 تلميذ</span>
+        </div>
+      </div>
+      <div class="teacher-card">
+        <div class="teacher-avatar" style="background: var(--coral-light)">
+          <span>أ.ي</span>
+        </div>
+        <h3>أ. يوسف بنعلي</h3>
+        <div class="teacher-subject">الفيزياء والكيمياء — PC</div>
+        <div class="teacher-stars">★★★★★ <span>4.85</span></div>
+        <div class="teacher-meta">
+          <span>📍 الرباط</span>
+          <span>👥 980 تلميذ</span>
+        </div>
+      </div>
+      <div class="teacher-card">
+        <div class="teacher-avatar" style="background: var(--amber-light)">
+          <span>أ.ن</span>
+        </div>
+        <h3>أ. نور الهدى السوسي</h3>
+        <div class="teacher-subject">اللغة الفرنسية — Français</div>
+        <div class="teacher-stars">★★★★☆ <span>4.7</span></div>
+        <div class="teacher-meta">
+          <span>📍 أكادير</span>
+          <span>👥 756 تلميذ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-            // استخدمنا الاسم الجديد هنا
-            const { data, error } = await supabaseClient.auth.signUp({
-                email: email,
-                password: password,
-            });
+<!-- ═══════════════════════════════════════════
+     TESTIMONIALS
+════════════════════════════════════════════ -->
+<section class="testimonials section" id="testimonials">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">آراء التلاميذ والآباء</div>
+      <h2 class="section-title">يقولون عنّا</h2>
+    </div>
+    <div class="testimonials-grid">
+      <blockquote class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p>قبل أكاديمية البيروني كنت أحصل على 10 في الرياضيات — هذا الفصل حصلت على 17! الأستاذة مريم تشرح بطريقة سهلة جداً.</p>
+        <footer>
+          <div class="testi-avatar">أ</div>
+          <div>
+            <div class="testi-name">أيمن بوزيان</div>
+            <div class="testi-role">تلميذ — السنة الثالثة إعدادي · مراكش</div>
+          </div>
+        </footer>
+      </blockquote>
+      <blockquote class="testi-card testi-card--featured">
+        <div class="testi-stars">★★★★★</div>
+        <p>كأم، أفضل ما أعجبني هو التقرير الأسبوعي على هاتفي. أعرف بالضبط ما الذي يدرسه ابني وأين يحتاج مساعدة. ممتاز!</p>
+        <footer>
+          <div class="testi-avatar">ف</div>
+          <div>
+            <div class="testi-name">فاطمة الزاهر</div>
+            <div class="testi-role">أم تلميذة — الدار البيضاء</div>
+          </div>
+        </footer>
+      </blockquote>
+      <blockquote class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p>المساعد الذكي هو أفضل شيء في المنصة! أسأله في أي وقت حتى منتصف الليل وهو يشرح ويصحح، ما كنت نصدق.</p>
+        <footer>
+          <div class="testi-avatar">إ</div>
+          <div>
+            <div class="testi-name">إسلام المنصوري</div>
+            <div class="testi-role">تلميذ — السنة الثانية إعدادي · فاس</div>
+          </div>
+        </footer>
+      </blockquote>
+    </div>
+  </div>
+</section>
 
-            if (error) {
-                showError(error.message);
-            } else {
-                alert("تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.");
-            }
-        }
+<!-- ═══════════════════════════════════════════
+     PRICING
+════════════════════════════════════════════ -->
+<section class="pricing section section--alt" id="pricing">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">الأسعار</div>
+      <h2 class="section-title">اختر الخطة المناسبة لك</h2>
+      <p class="section-sub">أسعار مدروسة تناسب كل أسرة مغربية</p>
+    </div>
+    <div class="pricing-toggle">
+      <button class="ptoggle active" id="pt-annual" onclick="toggleBilling('annual')">سنوي (وفّر 33%)</button>
+      <button class="ptoggle" id="pt-monthly" onclick="toggleBilling('monthly')">شهري</button>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">أساسي</div>
+        <div class="price-amount">
+          <span class="price-currency">درهم</span>
+          <span class="price-num" id="p1">67</span>
+          <span class="price-period">/شهر</span>
+        </div>
+        <div class="price-billed" id="pb1">محاسبة سنوية — 799 درهم</div>
+        <ul class="price-features">
+          <li><span class="pf-icon pf-yes">✓</span> جميع الدروس المصورة</li>
+          <li><span class="pf-icon pf-yes">✓</span> ملفات PDF قابلة للتحميل</li>
+          <li><span class="pf-icon pf-yes">✓</span> تمارين تفاعلية</li>
+          <li><span class="pf-icon pf-yes">✓</span> اختبارات قصيرة</li>
+          <li><span class="pf-icon pf-yes">✓</span> مساعد ذكي (30 رسالة/يوم)</li>
+          <li><span class="pf-icon pf-no">—</span> حصص مباشرة</li>
+          <li><span class="pf-icon pf-no">—</span> تقارير الآباء</li>
+        </ul>
+        <a href="#" class="btn btn-outline btn-block">ابدأ الآن</a>
+      </div>
+      <div class="price-card price-card--featured">
+        <div class="price-popular">الأكثر اختياراً</div>
+        <div class="price-tier">متقدم</div>
+        <div class="price-amount">
+          <span class="price-currency">درهم</span>
+          <span class="price-num" id="p2">83</span>
+          <span class="price-period">/شهر</span>
+        </div>
+        <div class="price-billed" id="pb2">محاسبة فصلية — 249 درهم</div>
+        <ul class="price-features">
+          <li><span class="pf-icon pf-yes">✓</span> كل ما في الأساسي</li>
+          <li><span class="pf-icon pf-yes">✓</span> 4 حصص مباشرة/شهر</li>
+          <li><span class="pf-icon pf-yes">✓</span> تقارير أسبوعية للآباء</li>
+          <li><span class="pf-icon pf-yes">✓</span> شهادات إتمام معتمدة</li>
+          <li><span class="pf-icon pf-yes">✓</span> مساعد ذكي غير محدود</li>
+          <li><span class="pf-icon pf-yes">✓</span> امتحانات جهوية محاكاة</li>
+          <li><span class="pf-icon pf-yes">✓</span> دعم أولوية</li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-block">ابدأ الآن</a>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">عائلي</div>
+        <div class="price-amount">
+          <span class="price-currency">درهم</span>
+          <span class="price-num" id="p3">117</span>
+          <span class="price-period">/شهر</span>
+        </div>
+        <div class="price-billed" id="pb3">محاسبة سنوية — 1,399 درهم (3 تلاميذ)</div>
+        <ul class="price-features">
+          <li><span class="pf-icon pf-yes">✓</span> كل ما في المتقدم</li>
+          <li><span class="pf-icon pf-yes">✓</span> حتى 3 تلاميذ في العائلة</li>
+          <li><span class="pf-icon pf-yes">✓</span> حصص مباشرة غير محدودة</li>
+          <li><span class="pf-icon pf-yes">✓</span> أستاذ مرافق خاص</li>
+          <li><span class="pf-icon pf-yes">✓</span> لوحة مراقبة العائلة</li>
+          <li><span class="pf-icon pf-yes">✓</span> أولوية قصوى للدعم</li>
+          <li><span class="pf-icon pf-yes">✓</span> إلغاء في أي وقت</li>
+        </ul>
+        <a href="#" class="btn btn-outline btn-block">ابدأ الآن</a>
+      </div>
+    </div>
+    <div class="pricing-free">
+      أو <strong>ابدأ مجاناً</strong> — أول درس من كل مادة بدون بطاقة بنكية.
+      <a href="#">جرّب مجاناً ←</a>
+    </div>
+  </div>
+</section>
 
-        // === 2. دالة تسجيل الدخول (Log In) ===
-        async function logIn() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            errorDiv.classList.add('hidden-view');
+<!-- ═══════════════════════════════════════════
+     CTA FINAL
+════════════════════════════════════════════ -->
+<section class="cta-final section">
+  <div class="container">
+    <div class="cta-box">
+      <h2>ابدأ رحلة التفوق اليوم</h2>
+      <p>انضم إلى أكثر من 4,800 تلميذ يتعلمون مع أكاديمية البيروني</p>
+      <div class="cta-actions">
+        <a href="pricing.html" class="btn btn-white btn-lg">سجّل مجاناً الآن</a>
+        <a href="https://wa.me/212600000000" class="btn btn-ghost-white btn-lg" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.853L.06 23.494a.5.5 0 00.614.614l5.641-1.472A11.935 11.935 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.8 9.8 0 01-5.028-1.38l-.36-.214-3.732.974.994-3.632-.235-.374A9.818 9.818 0 012.182 12C2.182 6.56 6.56 2.182 12 2.182c5.44 0 9.818 4.378 9.818 9.818 0 5.44-4.378 9.818-9.818 9.818z"/></svg>
+          تواصل معنا عبر واتساب
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
-            // استخدمنا الاسم الجديد هنا
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+<!-- ═══════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-icon">🌿</span>
+          <span class="logo-ar">أكاديمية البيروني</span>
+        </div>
+        <p>منصة تعليمية رقمية للتعليم الإعدادي بالمغرب — نحو مستقبل أفضل لكل تلميذ.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="TikTok" class="social-btn">TK</a>
+          <a href="#" aria-label="YouTube" class="social-btn">YT</a>
+          <a href="#" aria-label="Instagram" class="social-btn">IG</a>
+          <a href="#" aria-label="Facebook" class="social-btn">FB</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>المنصة</h4>
+        <a href="#">الدروس</a>
+        <a href="#">الاختبارات</a>
+        <a href="#">الحصص المباشرة</a>
+        <a href="#">المساعد الذكي</a>
+        <a href="#">الشهادات</a>
+      </div>
+      <div class="footer-col">
+        <h4>المواد</h4>
+        <a href="#">الرياضيات</a>
+        <a href="#">علوم الحياة والأرض</a>
+        <a href="#">الفيزياء والكيمياء</a>
+        <a href="#">اللغة العربية</a>
+        <a href="#">اللغة الفرنسية</a>
+      </div>
+      <div class="footer-col">
+        <h4>الدعم</h4>
+        <a href="#">مركز المساعدة</a>
+        <a href="#">تواصل معنا</a>
+        <a href="#">سياسة الخصوصية</a>
+        <a href="#">شروط الاستخدام</a>
+        <a href="#">للأساتذة</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 أكاديمية البيروني — جميع الحقوق محفوظة</span>
+      <span>صُنع بـ ❤️ في المغرب</span>
+    </div>
+  </div>
+</footer>
 
-            if (error) {
-                showError("البيانات غير صحيحة، تأكد من البريد وكلمة المرور.");
-            } else {
-                showDashboard(data.user.email);
-            }
-        }
-
-        // === 3. دالة تسجيل الخروج (Log Out) ===
-        async function logOut() {
-            // استخدمنا الاسم الجديد هنا
-            await supabaseClient.auth.signOut();
-            authSection.classList.remove('hidden-view');
-            dashboardSection.classList.add('hidden-view');
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
-        }
-
-        function showError(msg) {
-            errorDiv.innerText = msg;
-            errorDiv.classList.remove('hidden-view');
-        }
-
-        function showDashboard(email) {
-            authSection.classList.add('hidden-view');
-            dashboardSection.classList.remove('hidden-view');
-            document.getElementById('user-email-display').innerText = email;
-        }
-    </script>
+<script src="js/main.js"></script>
 </body>
 </html>

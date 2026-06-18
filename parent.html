@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>لوحة الوالدين — أكاديمية البيروني</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --teal:#1D9E75;--td:#085041;--tm:#0F6E56;--tl:#E1F5EE;--tb:#9FE1CB;
+      --pur:#534AB7;--pl:#EEEDFE;--pd:#26215C;
+      --amb:#BA7517;--al:#FAEEDA;--cor:#D85A30;--cl:#FAECE7;
+      --bg:#F5F4EF;--wh:#fff;--dk:#1a1a18;--gt:#5F5E5A;--gm:#D3D1C7;--gl:#EBEBE4;
+      --sw:256px;--font:'Cairo',system-ui,sans-serif;--r:12px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--bg);color:var(--dk);direction:rtl;display:flex;min-height:100vh;font-size:14px}
+    .sb{width:var(--sw);flex-shrink:0;background:#0F1B14;display:flex;flex-direction:column;
+        position:fixed;top:0;right:0;bottom:0;overflow-y:auto;z-index:50}
+    .sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+    .sb-n{color:#fff;font-size:13px;font-weight:600}
+    .sb-g{color:rgba(255,255,255,.45);font-size:11px;margin-top:1px}
+    .sb-user{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+    .sb-av{width:40px;height:40px;border-radius:50%;background:var(--amb);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+    .sb-nav{flex:1;padding:12px 10px}
+    .sb-sec{font-size:10px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.25);text-transform:uppercase;padding:8px 8px 4px;margin-top:4px}
+    .sb-a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;transition:.18s;margin-bottom:2px;user-select:none}
+    .sb-a:hover{background:rgba(255,255,255,.07);color:#fff}
+    .sb-a.on{background:var(--amb);color:#fff}
+    .sb-i{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+    .kids-panel{margin:10px 12px 14px;padding:12px;background:rgba(255,255,255,.05);border-radius:10px;border:1px solid rgba(255,255,255,.08)}
+    .kid-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:.18s;margin-bottom:4px}
+    .kid-btn:hover,.kid-btn.on{background:rgba(255,255,255,.1)}
+    .kid-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+    .kid-name{color:#fff;font-size:12px;font-weight:600}
+    .kid-grade{color:rgba(255,255,255,.45);font-size:10px}
+    .main{margin-right:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+    .topbar{background:var(--wh);border-bottom:1px solid var(--gm);padding:0 24px;height:60px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:40}
+    .tb-title{font-size:17px;font-weight:700}
+    .tb-kid{background:var(--al);color:var(--amb);font-size:12px;font-weight:700;padding:4px 12px;border-radius:10px}
+    .cnt{padding:22px;flex:1}
+    .tab-panel{display:none}.tab-panel.active{display:block}
+    .card{background:var(--wh);border-radius:var(--r);border:1px solid var(--gm);overflow:hidden;margin-bottom:18px}
+    .ch{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;border-bottom:1px solid var(--gl)}
+    .ct{font-size:14px;font-weight:700}
+    .cla{font-size:12px;color:var(--teal);font-weight:600;cursor:pointer}
+    .cb{padding:14px 18px}
+    .sr{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+    .sc{background:var(--wh);border-radius:var(--r);padding:16px;border:1px solid var(--gm)}
+    .sc-ic{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+    .sc-n{font-size:22px;font-weight:800;color:var(--dk);margin-top:8px}
+    .sc-l{font-size:11px;color:var(--gt);margin-top:1px}
+    .sc-ch{font-size:11px;font-weight:600;margin-top:4px}
+    .tc{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+    .prog-i{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .prog-lbl{width:120px;font-size:13px;color:var(--dk);flex-shrink:0}
+    .prog-bar-w{flex:1;height:7px;background:var(--gl);border-radius:4px;overflow:hidden}
+    .prog-bar-f{height:100%;border-radius:4px}
+    .prog-pct{font-size:12px;font-weight:700;width:32px;text-align:left;flex-shrink:0}
+    .att-i{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gl)}
+    .att-i:last-child{border-bottom:none}
+    .att-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .att-present{background:var(--teal)}
+    .att-absent{background:var(--cor)}
+    .att-late{background:var(--amb)}
+    .notif-i{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--gl)}
+    .notif-i:last-child{border-bottom:none}
+    .notif-ic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .notif-t{font-size:13px;font-weight:600;color:var(--dk)}
+    .notif-s{font-size:11px;color:var(--gt);margin-top:2px}
+    .notif-time{font-size:11px;color:var(--gt);flex-shrink:0;margin-top:2px}
+    .exam-i{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gl)}
+    .exam-i:last-child{border-bottom:none}
+    .exam-score{font-size:20px;font-weight:900;flex-shrink:0}
+    .s-hi{color:var(--teal)}.s-md{color:var(--amb)}.s-lo{color:var(--cor)}
+    @media(max-width:900px){.sb{display:none}.main{margin-right:0}.tc{grid-template-columns:1fr}.sr{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+
+<aside class="sb">
+  <div class="sb-logo">
+    <span style="font-size:22px">🌿</span>
+    <div>
+      <div style="color:#fff;font-size:15px;font-weight:700">أكاديمية البيروني</div>
+      <div style="color:rgba(255,255,255,.4);font-size:11px">لوحة الوالدين</div>
+    </div>
+  </div>
+  <div class="sb-user">
+    <div class="sb-av">ف</div>
+    <div>
+      <div class="sb-n">فاطمة بوزيان</div>
+      <div class="sb-g">ولي أمر · اشتراك متقدم</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">متابعة الأبناء</div>
+    <div class="sb-a on" onclick="go(this,'overview')"><span class="sb-i">🏠</span>نظرة عامة</div>
+    <div class="sb-a" onclick="go(this,'progress')"><span class="sb-i">📈</span>تقدم الدراسة</div>
+    <div class="sb-a" onclick="go(this,'attendance')"><span class="sb-i">📅</span>الحضور والغياب</div>
+    <div class="sb-a" onclick="go(this,'grades')"><span class="sb-i">📊</span>الدرجات والاختبارات</div>
+    <div class="sb-a" onclick="go(this,'notifications')"><span class="sb-i">🔔</span>الإشعارات</div>
+    <div class="sb-sec">الحساب</div>
+    <div class="sb-a" onclick="go(this,'subscription')"><span class="sb-i">💳</span>اشتراكي</div>
+    <div class="sb-a" onclick="go(this,'settings')"><span class="sb-i">⚙️</span>الإعدادات</div>
+  </nav>
+  <div class="kids-panel">
+    <div style="color:rgba(255,255,255,.4);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">أبنائي</div>
+    <div class="kid-btn on" onclick="switchKid(this,'أيمن','2AC')">
+      <div class="kid-av" style="background:var(--teal)">أ</div>
+      <div><div class="kid-name">أيمن</div><div class="kid-grade">السنة الثانية إعدادي</div></div>
+    </div>
+    <div class="kid-btn" onclick="switchKid(this,'نور','1AC')">
+      <div class="kid-av" style="background:var(--pur)">ن</div>
+      <div><div class="kid-name">نور</div><div class="kid-grade">السنة الأولى إعدادي</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title" id="pg-title">نظرة عامة</div>
+    <span class="tb-kid" id="kid-label">أيمن — السنة الثانية إعدادي</span>
+    <div style="margin-right:auto;display:flex;gap:10px">
+      <button onclick="downloadReport()" style="background:var(--teal);color:#fff;border:none;border-radius:7px;padding:8px 16px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer">📥 تحميل التقرير</button>
+    </div>
+  </div>
+
+  <div class="cnt">
+
+    <!-- OVERVIEW -->
+    <div class="tab-panel active" id="t-overview">
+      <!-- Weekly summary banner -->
+      <div style="background:linear-gradient(135deg,#0F1B14,var(--td) 60%,var(--teal));border-radius:var(--r);padding:24px 28px;color:#fff;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+        <div>
+          <div style="font-size:13px;opacity:.7;margin-bottom:4px">ملخص الأسبوع — <span id="kid-name-banner">أيمن</span></div>
+          <div style="font-size:20px;font-weight:700">أسبوع رائع! تحسّن بـ 7% 🎉</div>
+          <div style="font-size:13px;opacity:.8;margin-top:4px">آخر نشاط: اليوم الساعة 3:45 م</div>
+        </div>
+        <div style="display:flex;gap:14px">
+          <div style="text-align:center;background:rgba(255,255,255,.12);border-radius:10px;padding:14px 20px">
+            <div style="font-size:26px;font-weight:900">12</div>
+            <div style="font-size:11px;opacity:.7">يوم متتالي 🔥</div>
+          </div>
+          <div style="text-align:center;background:rgba(255,255,255,.12);border-radius:10px;padding:14px 20px">
+            <div style="font-size:26px;font-weight:900">18 س</div>
+            <div style="font-size:11px;opacity:.7">دراسة هذا الأسبوع</div>
+          </div>
+          <div style="text-align:center;background:rgba(255,255,255,.12);border-radius:10px;padding:14px 20px">
+            <div style="font-size:26px;font-weight:900">89%</div>
+            <div style="font-size:11px;opacity:.7">معدل الاختبارات</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sr">
+        <div class="sc">
+          <div class="sc-ic" style="background:#E1F5EE">📚</div>
+          <div class="sc-n">34</div>
+          <div class="sc-l">درساً أتمّه</div>
+          <div class="sc-ch" style="color:var(--teal)">↑ +6 هذا الأسبوع</div>
+        </div>
+        <div class="sc">
+          <div class="sc-ic" style="background:#EEEDFE">📋</div>
+          <div class="sc-n">3</div>
+          <div class="sc-l">واجبات عالقة</div>
+          <div class="sc-ch" style="color:var(--cor)">⚠️ يجب التسليم قريباً</div>
+        </div>
+        <div class="sc">
+          <div class="sc-ic" style="background:#FAEEDA">📊</div>
+          <div class="sc-n">89%</div>
+          <div class="sc-l">معدل الاختبارات</div>
+          <div class="sc-ch" style="color:var(--teal)">↑ +7% هذا الشهر</div>
+        </div>
+        <div class="sc">
+          <div class="sc-ic" style="background:#E1F5EE">📅</div>
+          <div class="sc-n">94%</div>
+          <div class="sc-l">نسبة الحضور</div>
+          <div class="sc-ch" style="color:var(--teal)">✓ منتظم</div>
+        </div>
+      </div>
+
+      <div class="tc">
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ct">📈 أداء المواد</div><div class="cla" onclick="go(document.querySelector('[onclick*=progress]'),'progress')">تفصيل</div></div>
+            <div class="cb">
+              <div class="prog-i">
+                <div class="prog-lbl">📐 الرياضيات</div>
+                <div class="prog-bar-w"><div class="prog-bar-f" style="width:72%;background:var(--teal)"></div></div>
+                <div class="prog-pct" style="color:var(--teal)">72%</div>
+              </div>
+              <div class="prog-i">
+                <div class="prog-lbl">🔬 علوم الحياة</div>
+                <div class="prog-bar-w"><div class="prog-bar-f" style="width:85%;background:#22C55E"></div></div>
+                <div class="prog-pct" style="color:#22C55E">85%</div>
+              </div>
+              <div class="prog-i">
+                <div class="prog-lbl">⚗️ الفيزياء</div>
+                <div class="prog-bar-w"><div class="prog-bar-f" style="width:40%;background:var(--cor)"></div></div>
+                <div class="prog-pct" style="color:var(--cor)">40%</div>
+              </div>
+              <div class="prog-i">
+                <div class="prog-lbl">📖 العربية</div>
+                <div class="prog-bar-w"><div class="prog-bar-f" style="width:58%;background:var(--amb)"></div></div>
+                <div class="prog-pct" style="color:var(--amb)">58%</div>
+              </div>
+              <div class="prog-i">
+                <div class="prog-lbl">🇫🇷 الفرنسية</div>
+                <div class="prog-bar-w"><div class="prog-bar-f" style="width:48%;background:var(--pur)"></div></div>
+                <div class="prog-pct" style="color:var(--pur)">48%</div>
+              </div>
+              <div style="background:var(--cl);border-radius:8px;padding:10px 12px;margin-top:12px;display:flex;gap:8px;align-items:center">
+                <span style="font-size:16px">⚠️</span>
+                <div>
+                  <div style="font-size:12px;font-weight:700;color:var(--cor)">يحتاج دعماً في الفيزياء</div>
+                  <div style="font-size:11px;color:var(--cor);margin-top:1px">نسبة إنجاز 40% فقط — يُنصح بحصة إضافية</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ch"><div class="ct">📊 آخر نتائج الاختبارات</div><div class="cla" onclick="go(document.querySelector('[onclick*=grades]'),'grades')">الكل</div></div>
+            <div class="cb">
+              <div class="exam-i">
+                <div style="width:36px;height:36px;border-radius:9px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:16px">📐</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:600">رياضيات — الوحدة 2</div><div style="font-size:11px;color:var(--gt)">10 يونيو</div></div>
+                <div class="exam-score s-hi">18/20</div>
+              </div>
+              <div class="exam-i">
+                <div style="width:36px;height:36px;border-radius:9px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:16px">🔬</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:600">SVT — الوحدة 1</div><div style="font-size:11px;color:var(--gt)">5 يونيو</div></div>
+                <div class="exam-score s-hi">15/20</div>
+              </div>
+              <div class="exam-i">
+                <div style="width:36px;height:36px;border-radius:9px;background:#FAECE7;display:flex;align-items:center;justify-content:center;font-size:16px">⚗️</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:600">فيزياء — المقاومات</div><div style="font-size:11px;color:var(--gt)">1 يونيو</div></div>
+                <div class="exam-score s-md">9/20</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ct">🔔 آخر الإشعارات</div><div class="cla" onclick="go(document.querySelector('[onclick*=notifications]'),'notifications')">الكل</div></div>
+            <div class="cb">
+              <div class="notif-i">
+                <div class="notif-ic" style="background:var(--cl)">⚠️</div>
+                <div style="flex:1">
+                  <div class="notif-t">واجب كيمياء عالق</div>
+                  <div class="notif-s">ينتهي غداً الساعة 11:59 م</div>
+                </div>
+                <div class="notif-time">منذ ساعة</div>
+              </div>
+              <div class="notif-i">
+                <div class="notif-ic" style="background:var(--tl)">🏆</div>
+                <div style="flex:1">
+                  <div class="notif-t">شارة جديدة مكتسبة</div>
+                  <div class="notif-s">أتمّ 12 يوماً متتالية ✓</div>
+                </div>
+                <div class="notif-time">أمس</div>
+              </div>
+              <div class="notif-i">
+                <div class="notif-ic" style="background:var(--al)">📡</div>
+                <div style="flex:1">
+                  <div class="notif-t">حصة رياضيات مباشرة غداً</div>
+                  <div class="notif-s">الساعة 10:00 صباحاً مع أ. مريم</div>
+                </div>
+                <div class="notif-time">أمس</div>
+              </div>
+              <div class="notif-i">
+                <div class="notif-ic" style="background:var(--tl)">📈</div>
+                <div style="flex:1">
+                  <div class="notif-t">تحسّن في الرياضيات</div>
+                  <div class="notif-s">ارتفع معدله من 15 إلى 18/20</div>
+                </div>
+                <div class="notif-time">3 أيام</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ch"><div class="ct">💬 رسالة للأستاذ</div></div>
+            <div class="cb">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <select style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:8px 12px;font-family:var(--font);font-size:13px;color:var(--dk)">
+                  <option>أ. مريم الكاتبي — الرياضيات</option>
+                  <option>أ. سعيد الأحمدي — SVT</option>
+                  <option>أ. يوسف بنعلي — الفيزياء</option>
+                </select>
+                <textarea style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk);resize:none;height:80px;outline:none" placeholder="اكتب رسالتك للأستاذ..."></textarea>
+                <button onclick="alert('تم إرسال رسالتك للأستاذ ✓')" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer">إرسال الرسالة</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div class="tab-panel" id="t-attendance">
+      <div class="card">
+        <div class="ch">
+          <div class="ct">📅 سجل الحضور — يونيو 2025</div>
+          <div style="display:flex;gap:12px;font-size:12px">
+            <span><span style="color:var(--teal)">●</span> حاضر</span>
+            <span><span style="color:var(--cor)">●</span> غائب</span>
+            <span><span style="color:var(--amb)">●</span> متأخر</span>
+          </div>
+        </div>
+        <div class="cb">
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center;margin-bottom:12px">
+            <div style="font-size:11px;font-weight:700;color:var(--gt)">أح</div>
+            <div style="font-size:11px;font-weight:700;color:var(--gt)">اث</div>
+            <div style="font-size:11px;font-weight:700;color:var(--gt)">ث</div>
+            <div style="font-size:11px;font-weight:700;color:var(--gt)">أر</div>
+            <div style="font-size:11px;font-weight:700;color:var(--gt)">خ</div>
+            <div style="font-size:11px;font-weight:700;color:var(--gt)">ج</div>
+            <div style="font-size:11px;font-weight:700;color:var(--gt)">س</div>
+          </div>
+          <div id="cal" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center"></div>
+          <div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">
+            <div style="background:var(--tl);border-radius:8px;padding:12px">
+              <div style="font-size:22px;font-weight:800;color:var(--td)">28</div>
+              <div style="font-size:11px;color:var(--tm)">حاضر</div>
+            </div>
+            <div style="background:var(--cl);border-radius:8px;padding:12px">
+              <div style="font-size:22px;font-weight:800;color:var(--cor)">1</div>
+              <div style="font-size:11px;color:var(--cor)">غائب</div>
+            </div>
+            <div style="background:var(--al);border-radius:8px;padding:12px">
+              <div style="font-size:22px;font-weight:800;color:var(--amb)">1</div>
+              <div style="font-size:11px;color:var(--amb)">متأخر</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRADES -->
+    <div class="tab-panel" id="t-grades">
+      <div class="card">
+        <div class="ch"><div class="ct">📊 جميع نتائج الاختبارات</div></div>
+        <div class="cb">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="border-bottom:2px solid var(--gl)">
+                <th style="text-align:right;padding:8px;color:var(--gt);font-weight:600;font-size:11px;text-transform:uppercase">الاختبار</th>
+                <th style="text-align:center;padding:8px;color:var(--gt);font-weight:600;font-size:11px">المادة</th>
+                <th style="text-align:center;padding:8px;color:var(--gt);font-weight:600;font-size:11px">التاريخ</th>
+                <th style="text-align:center;padding:8px;color:var(--gt);font-weight:600;font-size:11px">الدرجة</th>
+                <th style="text-align:center;padding:8px;color:var(--gt);font-weight:600;font-size:11px">المستوى</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--gl)"><td style="padding:10px 8px">الوحدة 2 — هندسة</td><td style="text-align:center">📐 رياضيات</td><td style="text-align:center;color:var(--gt)">10/06</td><td style="text-align:center;font-size:18px;font-weight:900;color:var(--teal)">18/20</td><td style="text-align:center"><span style="background:var(--tl);color:var(--td);font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px">ممتاز</span></td></tr>
+              <tr style="border-bottom:1px solid var(--gl)"><td style="padding:10px 8px">الوحدة 1 — أحياء</td><td style="text-align:center">🔬 SVT</td><td style="text-align:center;color:var(--gt)">05/06</td><td style="text-align:center;font-size:18px;font-weight:900;color:var(--teal)">15/20</td><td style="text-align:center"><span style="background:var(--tl);color:var(--td);font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px">جيد جداً</span></td></tr>
+              <tr style="border-bottom:1px solid var(--gl)"><td style="padding:10px 8px">المقاومات الكهربائية</td><td style="text-align:center">⚗️ فيزياء</td><td style="text-align:center;color:var(--gt)">01/06</td><td style="text-align:center;font-size:18px;font-weight:900;color:var(--cor)">9/20</td><td style="text-align:center"><span style="background:var(--cl);color:var(--cor);font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px">يحتاج تحسين</span></td></tr>
+              <tr style="border-bottom:1px solid var(--gl)"><td style="padding:10px 8px">النحو والأساليب</td><td style="text-align:center">📖 عربية</td><td style="text-align:center;color:var(--gt)">28/05</td><td style="text-align:center;font-size:18px;font-weight:900;color:var(--teal)">16/20</td><td style="text-align:center"><span style="background:var(--tl);color:var(--td);font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px">جيد جداً</span></td></tr>
+              <tr><td style="padding:10px 8px">الوحدة 1 — الجملة</td><td style="text-align:center">🇫🇷 فرنسية</td><td style="text-align:center;color:var(--gt)">22/05</td><td style="text-align:center;font-size:18px;font-weight:900;color:var(--amb)">13/20</td><td style="text-align:center"><span style="background:var(--al);color:var(--amb);font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px">جيد</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="tab-panel" id="t-notifications">
+      <div class="card">
+        <div class="ch"><div class="ct">🔔 جميع الإشعارات</div><div class="cla" onclick="document.querySelectorAll('.notif-dot-2').forEach(d=>d.style.display='none')">تحديد الكل كمقروء</div></div>
+        <div class="cb" id="all-notifs">
+          <div class="notif-i" style="padding:12px 0">
+            <div class="notif-ic" style="background:var(--cl)">⚠️</div>
+            <div style="flex:1">
+              <div class="notif-t">واجب كيمياء عالق — أيمن</div>
+              <div class="notif-s">ينتهي غداً الساعة 11:59 م · تمارين الوحدة 1</div>
+            </div>
+            <div class="notif-time">منذ ساعة</div>
+          </div>
+          <div class="notif-i" style="padding:12px 0">
+            <div class="notif-ic" style="background:var(--tl)">🏆</div>
+            <div style="flex:1">
+              <div class="notif-t">شارة "12 يوم متتالي" 🔥</div>
+              <div class="notif-s">أيمن حقق رقماً قياسياً جديداً في الانتظام</div>
+            </div>
+            <div class="notif-time">أمس</div>
+          </div>
+          <div class="notif-i" style="padding:12px 0">
+            <div class="notif-ic" style="background:var(--al)">📡</div>
+            <div style="flex:1">
+              <div class="notif-t">حصة رياضيات مباشرة غداً الساعة 10:00 ص</div>
+              <div class="notif-s">مع أ. مريم الكاتبي — مراجعة الهندسة الفضائية</div>
+            </div>
+            <div class="notif-time">أمس</div>
+          </div>
+          <div class="notif-i" style="padding:12px 0">
+            <div class="notif-ic" style="background:var(--tl)">📈</div>
+            <div style="flex:1">
+              <div class="notif-t">تحسّن ملحوظ في الرياضيات</div>
+              <div class="notif-s">ارتفع معدل أيمن من 15 إلى 18/20 في آخر اختبار</div>
+            </div>
+            <div class="notif-time">3 أيام</div>
+          </div>
+          <div class="notif-i" style="padding:12px 0">
+            <div class="notif-ic" style="background:var(--cl)">📉</div>
+            <div style="flex:1">
+              <div class="notif-t">نتيجة منخفضة في الفيزياء</div>
+              <div class="notif-s">حصل أيمن على 9/20 في اختبار المقاومات — يُنصح بمراجعة إضافية</div>
+            </div>
+            <div class="notif-time">5 أيام</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION -->
+    <div class="tab-panel" id="t-subscription">
+      <div class="card">
+        <div class="ch"><div class="ct">💳 اشتراكي الحالي</div></div>
+        <div class="cb">
+          <div style="background:linear-gradient(135deg,var(--td),var(--teal));border-radius:12px;padding:24px;color:#fff;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+            <div>
+              <div style="font-size:13px;opacity:.7;margin-bottom:4px">الخطة الحالية</div>
+              <div style="font-size:22px;font-weight:800">خطة متقدمة</div>
+              <div style="font-size:13px;opacity:.8;margin-top:4px">تلميذان — أيمن ونور</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:38px;font-weight:900">249</div>
+              <div style="font-size:13px;opacity:.7">درهم / 3 أشهر</div>
+            </div>
+            <div>
+              <div style="font-size:12px;opacity:.7;margin-bottom:4px">تاريخ التجديد</div>
+              <div style="font-size:16px;font-weight:700">15 سبتمبر 2025</div>
+              <div style="margin-top:10px;background:rgba(255,255,255,.2);border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;text-align:center">إدارة الاشتراك</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div style="border:1px solid var(--gm);border-radius:10px;padding:16px;text-align:center">
+              <div style="font-size:13px;font-weight:700;color:var(--gt);margin-bottom:8px">شهري</div>
+              <div style="font-size:26px;font-weight:900;color:var(--dk)">99 <span style="font-size:13px;font-weight:400">درهم</span></div>
+              <div style="font-size:11px;color:var(--gt);margin:4px 0 10px">/ شهر</div>
+              <button style="width:100%;background:var(--gl);color:var(--dk);border:none;border-radius:7px;padding:8px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer">الخطة الأساسية</button>
+            </div>
+            <div style="border:2px solid var(--teal);border-radius:10px;padding:16px;text-align:center;background:var(--tl)">
+              <div style="font-size:11px;font-weight:700;color:var(--teal);margin-bottom:4px">✓ خطتك الحالية</div>
+              <div style="font-size:13px;font-weight:700;color:var(--td);margin-bottom:8px">فصلي</div>
+              <div style="font-size:26px;font-weight:900;color:var(--td)">249 <span style="font-size:13px;font-weight:400">درهم</span></div>
+              <div style="font-size:11px;color:var(--tm);margin:4px 0 10px">/ 3 أشهر</div>
+              <button style="width:100%;background:var(--teal);color:#fff;border:none;border-radius:7px;padding:8px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer">مفعّلة ✓</button>
+            </div>
+            <div style="border:1px solid var(--gm);border-radius:10px;padding:16px;text-align:center">
+              <div style="font-size:11px;font-weight:700;color:var(--pur);margin-bottom:4px">وفّر 33%</div>
+              <div style="font-size:13px;font-weight:700;color:var(--gt);margin-bottom:8px">سنوي</div>
+              <div style="font-size:26px;font-weight:900;color:var(--dk)">799 <span style="font-size:13px;font-weight:400">درهم</span></div>
+              <div style="font-size:11px;color:var(--gt);margin:4px 0 10px">/ سنة</div>
+              <button onclick="alert('سيتم تحويلك لصفحة الدفع...')" style="width:100%;background:var(--pur);color:#fff;border:none;border-radius:7px;padding:8px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer">ترقية الآن</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-panel" id="t-settings">
+      <div class="card">
+        <div class="ch"><div class="ct">⚙️ إعدادات الإشعارات</div></div>
+        <div class="cb">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div style="font-size:12px;font-weight:700;color:var(--gt);text-transform:uppercase;letter-spacing:.04em">إشعارات واتساب</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gl)">
+              <div><div style="font-size:13px;font-weight:600">واجبات عالقة لأيمن</div><div style="font-size:11px;color:var(--gt)">إشعار فوري عند اقتراب الموعد</div></div>
+              <div onclick="toggle(this)" class="tog on" style="width:40px;height:22px;border-radius:11px;background:var(--teal);cursor:pointer;position:relative;flex-shrink:0"><div style="position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:20px;transition:.2s"></div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gl)">
+              <div><div style="font-size:13px;font-weight:600">نتائج الاختبارات</div><div style="font-size:11px;color:var(--gt)">إشعار فور ظهور الدرجة</div></div>
+              <div onclick="toggle(this)" class="tog on" style="width:40px;height:22px;border-radius:11px;background:var(--teal);cursor:pointer;position:relative;flex-shrink:0"><div style="position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:20px;transition:.2s"></div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gl)">
+              <div><div style="font-size:13px;font-weight:600">التقرير الأسبوعي PDF</div><div style="font-size:11px;color:var(--gt)">كل يوم الأحد الساعة 8 صباحاً</div></div>
+              <div onclick="toggle(this)" class="tog on" style="width:40px;height:22px;border-radius:11px;background:var(--teal);cursor:pointer;position:relative;flex-shrink:0"><div style="position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:20px;transition:.2s"></div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+              <div><div style="font-size:13px;font-weight:600">الحصص المباشرة القادمة</div><div style="font-size:11px;color:var(--gt)">تذكير قبل الحصة بساعة</div></div>
+              <div onclick="toggle(this)" class="tog" style="width:40px;height:22px;border-radius:11px;background:var(--gm);cursor:pointer;position:relative;flex-shrink:0"><div style="position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;right:2px;transition:.2s"></div></div>
+            </div>
+          </div>
+          <button onclick="alert('تم حفظ الإعدادات ✓')" style="margin-top:16px;background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer">حفظ الإعدادات</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const titles={overview:'نظرة عامة',progress:'تقدم الدراسة',attendance:'الحضور والغياب',grades:'الدرجات والاختبارات',notifications:'الإشعارات',subscription:'اشتراكي',settings:'الإعدادات'};
+function go(el,tab){
+  document.querySelectorAll('.sb-a').forEach(a=>a.classList.remove('on'));
+  if(el)el.classList.add('on');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  const p=document.getElementById('t-'+tab);
+  if(p)p.classList.add('active');
+  document.getElementById('pg-title').textContent=titles[tab]||'';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function switchKid(el,name,grade){
+  document.querySelectorAll('.kid-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('kid-label').textContent=name+' — السنة '+grade+' إعدادي';
+  document.getElementById('kid-name-banner').textContent=name;
+}
+function downloadReport(){alert('📥 جارٍ تحضير تقرير أيمن الأسبوعي PDF...\nسيصل لهاتفك خلال ثوانٍ.');}
+function toggle(el){
+  const on=el.classList.toggle('on');
+  el.style.background=on?'var(--teal)':'var(--gm)';
+  const dot=el.querySelector('div');
+  dot.style.left=on?'20px':'';dot.style.right=on?'':'2px';
+}
+// Calendar
+(function(){
+  const cal=document.getElementById('cal');if(!cal)return;
+  const status=[null,null,null,'p','p','p','p','p','a','p','p','p','p','p','p','l','p','p','p','p','p','p','p','p','p','p','p','p','p','p'];
+  for(let i=0;i<30;i++){
+    const d=document.createElement('div');
+    const s=status[i];
+    d.style.cssText='width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin:0 auto;';
+    if(!s){d.style.opacity='.2';d.textContent=i+1;}
+    else if(s==='p'){d.style.background='var(--tl)';d.style.color='var(--td)';d.textContent=i+1;}
+    else if(s==='a'){d.style.background='var(--cl)';d.style.color='var(--cor)';d.textContent=i+1;}
+    else{d.style.background='var(--al)';d.style.color='var(--amb)';d.textContent=i+1;}
+    cal.appendChild(d);
+  }
+})();
+</script>
+</body>
+</html>

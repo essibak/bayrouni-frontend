@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>لوحة الأستاذ — أكاديمية البيروني</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --teal:#1D9E75;--td:#085041;--tm:#0F6E56;--tl:#E1F5EE;--tb:#9FE1CB;
+      --pur:#534AB7;--pl:#EEEDFE;--pd:#26215C;
+      --amb:#BA7517;--al:#FAEEDA;--cor:#D85A30;--cl:#FAECE7;
+      --bg:#F0EEE7;--wh:#fff;--dk:#1a1a18;--gt:#5F5E5A;--gm:#D3D1C7;--gl:#EBEBE4;
+      --sw:256px;--font:'Cairo',system-ui,sans-serif;--r:12px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--bg);color:var(--dk);direction:rtl;display:flex;min-height:100vh;font-size:14px}
+    .sb{width:var(--sw);flex-shrink:0;background:#1a1a2e;display:flex;flex-direction:column;
+        position:fixed;top:0;right:0;bottom:0;overflow-y:auto;z-index:50}
+    .sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+    .sb-logo-t{color:#fff;font-size:15px;font-weight:700}
+    .sb-logo-s{color:rgba(255,255,255,.4);font-size:11px}
+    .sb-user{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+    .sb-av{width:40px;height:40px;border-radius:50%;background:var(--pur);
+           display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+    .sb-n{color:#fff;font-size:13px;font-weight:600}
+    .sb-g{color:rgba(255,255,255,.45);font-size:11px;margin-top:1px}
+    .sb-nav{flex:1;padding:12px 10px}
+    .sb-sec{font-size:10px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.25);
+            text-transform:uppercase;padding:8px 8px 4px;margin-top:4px}
+    .sb-a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;
+          font-size:13px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;
+          transition:.18s;margin-bottom:2px;user-select:none}
+    .sb-a:hover{background:rgba(255,255,255,.07);color:#fff}
+    .sb-a.on{background:var(--pur);color:#fff}
+    .sb-i{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+    .sb-earnings{margin:10px 12px 14px;padding:12px;background:rgba(255,255,255,.05);
+                 border-radius:10px;border:1px solid rgba(255,255,255,.08)}
+    .sb-e-l{color:rgba(255,255,255,.4);font-size:11px;margin-bottom:3px}
+    .sb-e-v{color:#fff;font-size:20px;font-weight:900}
+    .sb-e-s{color:var(--tb);font-size:11px;margin-top:2px}
+
+    .main{margin-right:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+    .topbar{background:var(--wh);border-bottom:1px solid var(--gm);padding:0 24px;
+            height:60px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:40}
+    .tb-title{font-size:17px;font-weight:700}
+    .tb-tag{background:var(--al);color:var(--amb);font-size:11px;font-weight:700;
+            padding:3px 10px;border-radius:10px}
+    .topbar-right{margin-right:auto;display:flex;align-items:center;gap:10px}
+    .cnt{padding:22px;flex:1}
+
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+
+    .sr{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+    .sc{background:var(--wh);border-radius:var(--r);padding:16px;border:1px solid var(--gm)}
+    .sc-ic{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+    .sc-n{font-size:22px;font-weight:800;color:var(--dk);margin-top:8px}
+    .sc-l{font-size:11px;color:var(--gt);margin-top:1px}
+    .sc-ch{font-size:11px;font-weight:600;margin-top:4px}
+    .ch-up{color:var(--teal)}
+    .ch-dn{color:var(--cor)}
+
+    .card{background:var(--wh);border-radius:var(--r);border:1px solid var(--gm);overflow:hidden;margin-bottom:18px}
+    .ch{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;border-bottom:1px solid var(--gl)}
+    .ct{font-size:14px;font-weight:700}
+    .cla{font-size:12px;color:var(--teal);font-weight:600;cursor:pointer}
+    .cb{padding:14px 18px}
+
+    .btn{padding:8px 16px;border:none;border-radius:7px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;transition:.18s}
+    .btn-p{background:var(--teal);color:#fff}
+    .btn-p:hover{background:var(--tm)}
+    .btn-s{background:var(--gl);color:var(--dk)}
+    .btn-s:hover{background:var(--gm)}
+    .btn-pur{background:var(--pur);color:#fff}
+    .btn-pur:hover{background:var(--pd)}
+    .btn-amb{background:var(--al);color:var(--amb)}
+
+    .tc{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+    .thr{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+
+    .stu-i{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gl)}
+    .stu-i:last-child{border-bottom:none}
+    .stu-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+    .stu-n{font-size:13px;font-weight:600;color:var(--dk)}
+    .stu-m{font-size:11px;color:var(--gt);margin-top:1px}
+    .stu-pb-w{flex:1;height:4px;background:var(--gl);border-radius:2px;overflow:hidden}
+    .stu-pb{height:100%;border-radius:2px}
+    .stu-pp{font-size:11px;font-weight:700;width:32px;text-align:left}
+
+    .lesson-i{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--gl)}
+    .lesson-i:last-child{border-bottom:none}
+    .lesson-ic{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+    .lesson-n{font-size:13px;font-weight:600;color:var(--dk)}
+    .lesson-m{font-size:11px;color:var(--gt);margin-top:2px}
+    .lesson-views{font-size:12px;color:var(--teal);font-weight:600;flex-shrink:0;text-align:left;min-width:60px}
+
+    .tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
+    .tag-g{background:var(--tl);color:var(--td)}
+    .tag-p{background:var(--pl);color:var(--pd)}
+    .tag-a{background:var(--al);color:var(--amb)}
+    .tag-r{background:var(--cl);color:var(--cor)}
+
+    @media(max-width:900px){
+      .sb{display:none}.main{margin-right:0}
+      .tc,.thr{grid-template-columns:1fr}
+      .sr{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <span style="font-size:22px">🌿</span>
+    <div>
+      <div class="sb-logo-t">أكاديمية البيروني</div>
+      <div class="sb-logo-s">لوحة الأستاذ</div>
+    </div>
+  </div>
+  <div class="sb-user">
+    <div class="sb-av">م</div>
+    <div>
+      <div class="sb-n">أ. مريم الكاتبي</div>
+      <div class="sb-g">أستاذة الرياضيات · معتمدة ✓</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">الرئيسية</div>
+    <div class="sb-a on" onclick="go(this,'home')"><span class="sb-i">🏠</span>لوحة التحكم</div>
+    <div class="sb-a" onclick="go(this,'lessons')"><span class="sb-i">🎬</span>دروسي</div>
+    <div class="sb-a" onclick="go(this,'upload')"><span class="sb-i">⬆️</span>رفع درس جديد</div>
+    <div class="sb-a" onclick="go(this,'quizzes')"><span class="sb-i">📊</span>إنشاء اختبار</div>
+    <div class="sb-sec">التلاميذ</div>
+    <div class="sb-a" onclick="go(this,'students')"><span class="sb-i">👨‍🎓</span>تلاميذي</div>
+    <div class="sb-a" onclick="go(this,'performance')"><span class="sb-i">📈</span>تقارير الأداء</div>
+    <div class="sb-a" onclick="go(this,'live')"><span class="sb-i">📡</span>جدولة حصة مباشرة</div>
+    <div class="sb-sec">الحساب</div>
+    <div class="sb-a" onclick="go(this,'earnings')"><span class="sb-i">💰</span>أرباحي</div>
+    <div class="sb-a" onclick="go(this,'settings')"><span class="sb-i">⚙️</span>الإعدادات</div>
+  </nav>
+  <div class="sb-earnings">
+    <div class="sb-e-l">💰 أرباح هذا الشهر</div>
+    <div class="sb-e-v">3,240 درهم</div>
+    <div class="sb-e-s">↑ +18% مقارنة بالشهر الماضي</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title" id="pg-title">لوحة التحكم</div>
+    <span class="tb-tag">أستاذ معتمد ✓</span>
+    <div class="topbar-right">
+      <button class="btn btn-pur" onclick="go(document.querySelector('[onclick*=upload]'),'upload')">⬆️ رفع درس جديد</button>
+      <button class="btn btn-p" onclick="go(document.querySelector('[onclick*=live]'),'live')">📡 حصة مباشرة</button>
+    </div>
+  </div>
+
+  <div class="cnt">
+
+    <!-- HOME -->
+    <div class="tab-panel active" id="t-home">
+      <div class="sr">
+        <div class="sc">
+          <div class="sc-ic" style="background:#E1F5EE">👨‍🎓</div>
+          <div class="sc-n">2,104</div>
+          <div class="sc-l">تلميذ مسجّل</div>
+          <div class="sc-ch ch-up">↑ +124 هذا الأسبوع</div>
+        </div>
+        <div class="sc">
+          <div class="sc-ic" style="background:#EEEDFE">🎬</div>
+          <div class="sc-n">47</div>
+          <div class="sc-l">درس منشور</div>
+          <div class="sc-ch ch-up">↑ +3 هذا الشهر</div>
+        </div>
+        <div class="sc">
+          <div class="sc-ic" style="background:#FAEEDA">⭐</div>
+          <div class="sc-n">4.97</div>
+          <div class="sc-l">معدل التقييم</div>
+          <div class="sc-ch" style="color:var(--amb)">من 5 · 1,840 تقييم</div>
+        </div>
+        <div class="sc">
+          <div class="sc-ic" style="background:#E1F5EE">💰</div>
+          <div class="sc-n">3,240 د</div>
+          <div class="sc-l">أرباح الشهر</div>
+          <div class="sc-ch ch-up">↑ +18% الشهر الماضي</div>
+        </div>
+      </div>
+
+      <div class="tc">
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ct">📈 أداء التلاميذ هذا الأسبوع</div><div class="cla">تفصيل</div></div>
+            <div class="cb">
+              <canvas id="perf" height="130" style="width:100%"></canvas>
+              <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--gt)">
+                <span>أح</span><span>اث</span><span>ث</span><span>أر</span><span>خ</span><span>ج</span><span>س</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
+                <div style="text-align:center;background:var(--tl);border-radius:8px;padding:10px">
+                  <div style="font-size:18px;font-weight:800;color:var(--td)">87%</div>
+                  <div style="font-size:10px;color:var(--tm)">معدل الإنجاز</div>
+                </div>
+                <div style="text-align:center;background:var(--pl);border-radius:8px;padding:10px">
+                  <div style="font-size:18px;font-weight:800;color:var(--pd)">14.2</div>
+                  <div style="font-size:10px;color:var(--pur)">متوسط الدرجة /20</div>
+                </div>
+                <div style="text-align:center;background:var(--al);border-radius:8px;padding:10px">
+                  <div style="font-size:18px;font-weight:800;color:var(--amb)">94%</div>
+                  <div style="font-size:10px;color:var(--amb)">نسبة الحضور</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ch"><div class="ct">🎬 أكثر الدروس مشاهدة</div><div class="cla">الكل</div></div>
+            <div class="cb">
+              <div class="lesson-i">
+                <div class="lesson-ic" style="background:#E1F5EE">📐</div>
+                <div style="flex:1">
+                  <div class="lesson-n">الهندسة الفضائية — المجسمات</div>
+                  <div class="lesson-m">الوحدة 3 · 18 دقيقة <span class="tag tag-g">الأعلى</span></div>
+                </div>
+                <div class="lesson-views">👁 1,240</div>
+              </div>
+              <div class="lesson-i">
+                <div class="lesson-ic" style="background:#E1F5EE">📐</div>
+                <div style="flex:1">
+                  <div class="lesson-n">المعادلات من الدرجة الثانية</div>
+                  <div class="lesson-m">الوحدة 2 · 22 دقيقة</div>
+                </div>
+                <div class="lesson-views">👁 980</div>
+              </div>
+              <div class="lesson-i">
+                <div class="lesson-ic" style="background:#E1F5EE">📐</div>
+                <div style="flex:1">
+                  <div class="lesson-n">حساب التفاضل — المشتقات</div>
+                  <div class="lesson-m">الوحدة 4 · 25 دقيقة</div>
+                </div>
+                <div class="lesson-views">👁 860</div>
+              </div>
+              <div class="lesson-i">
+                <div class="lesson-ic" style="background:#E1F5EE">📐</div>
+                <div style="flex:1">
+                  <div class="lesson-n">الإحصاء والاحتمالات</div>
+                  <div class="lesson-m">الوحدة 5 · 20 دقيقة <span class="tag tag-a">جديد</span></div>
+                </div>
+                <div class="lesson-views">👁 542</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="ch"><div class="ct">🔴 يحتاجون مساعدة</div><div class="cla">اتصل بهم</div></div>
+            <div class="cb">
+              <div style="font-size:12px;color:var(--gt);margin-bottom:10px">تلاميذ أداؤهم أقل من 50% هذا الأسبوع</div>
+              <div class="stu-i">
+                <div class="stu-av" style="background:#FAECE7;color:var(--cor)">ع</div>
+                <div style="flex:1">
+                  <div class="stu-n">عمر شفيق</div>
+                  <div class="stu-m">لم يدخل منذ 5 أيام</div>
+                </div>
+                <button class="btn btn-s" style="font-size:11px;padding:5px 10px">رسالة</button>
+              </div>
+              <div class="stu-i">
+                <div class="stu-av" style="background:#FAECE7;color:var(--cor)">ل</div>
+                <div style="flex:1">
+                  <div class="stu-n">ليلى بنسعيد</div>
+                  <div class="stu-m">معدل 38% · اختبارين فائتان</div>
+                </div>
+                <button class="btn btn-s" style="font-size:11px;padding:5px 10px">رسالة</button>
+              </div>
+              <div class="stu-i">
+                <div class="stu-av" style="background:#FAEEDA;color:var(--amb)">ر</div>
+                <div style="flex:1">
+                  <div class="stu-n">رياض الطيب</div>
+                  <div class="stu-m">معدل 44% · يحتاج دعماً</div>
+                </div>
+                <button class="btn btn-s" style="font-size:11px;padding:5px 10px">رسالة</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ch"><div class="ct">⭐ أحدث التقييمات</div></div>
+            <div class="cb">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="background:var(--tl);border-radius:8px;padding:12px">
+                  <div style="color:var(--amb);font-size:13px;margin-bottom:4px">★★★★★</div>
+                  <div style="font-size:12px;color:var(--dk);line-height:1.5">"أفضل أستاذة شرحت لي الرياضيات، الآن أصبحت أحبها!"</div>
+                  <div style="font-size:11px;color:var(--gt);margin-top:4px">أيمن بوزيان · منذ ساعتين</div>
+                </div>
+                <div style="background:var(--gl);border-radius:8px;padding:12px">
+                  <div style="color:var(--amb);font-size:13px;margin-bottom:4px">★★★★★</div>
+                  <div style="font-size:12px;color:var(--dk);line-height:1.5">"طريقة الشرح واضحة جداً، الفيديوهات ممتازة"</div>
+                  <div style="font-size:11px;color:var(--gt);margin-top:4px">سارة الأمين · منذ يوم</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /home -->
+
+    <!-- UPLOAD -->
+    <div class="tab-panel" id="t-upload">
+      <div class="card">
+        <div class="ch"><div class="ct">⬆️ رفع درس جديد</div></div>
+        <div class="cb">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:6px;text-transform:uppercase">عنوان الدرس *</div>
+              <input id="lesson-title-inp" style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk);outline:none" placeholder="مثال: الهندسة الفضائية — المجسمات"/>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:6px;text-transform:uppercase">المادة *</div>
+              <select style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk)">
+                <option>الرياضيات</option><option>SVT</option><option>الفيزياء والكيمياء</option><option>العربية</option><option>الفرنسية</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:6px;text-transform:uppercase">المستوى *</div>
+              <select style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk)">
+                <option>السنة الأولى إعدادي (1AC)</option><option>السنة الثانية إعدادي (2AC)</option><option>السنة الثالثة إعدادي (3AC)</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:6px;text-transform:uppercase">الوحدة والدرس</div>
+              <div style="display:flex;gap:8px">
+                <input style="flex:1;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk)" placeholder="الوحدة 3"/>
+                <input style="flex:1;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk)" placeholder="الدرس 4"/>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:16px">
+            <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:6px;text-transform:uppercase">وصف الدرس</div>
+            <textarea style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk);resize:vertical;min-height:80px;outline:none" placeholder="اشرح ما سيتعلمه التلميذ في هذا الدرس..."></textarea>
+          </div>
+          <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:8px;text-transform:uppercase">📹 رفع الفيديو</div>
+              <div id="video-drop" onclick="simulateUpload('video')" style="border:2px dashed var(--gm);border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg)" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderColor='var(--gm)'">
+                <div style="font-size:28px;margin-bottom:8px">🎬</div>
+                <div style="font-size:13px;font-weight:600;color:var(--dk)">اسحب الفيديو هنا</div>
+                <div style="font-size:11px;color:var(--gt);margin-top:4px">MP4, MOV — حتى 2GB</div>
+                <div id="vid-prog" style="display:none;margin-top:10px">
+                  <div style="height:4px;background:var(--gl);border-radius:2px;overflow:hidden">
+                    <div id="vid-fill" style="height:100%;background:var(--teal);width:0%;border-radius:2px;transition:.1s"></div>
+                  </div>
+                  <div id="vid-pct" style="font-size:12px;color:var(--teal);margin-top:4px;font-weight:700">0%</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:8px;text-transform:uppercase">📄 ملفات الدرس</div>
+              <div onclick="simulateUpload('pdf')" style="border:2px dashed var(--gm);border-radius:10px;padding:20px 16px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg);margin-bottom:8px" onmouseover="this.style.borderColor='var(--pur)'" onmouseout="this.style.borderColor='var(--gm)'">
+                <div style="font-size:20px;margin-bottom:4px">📑</div>
+                <div style="font-size:12px;font-weight:600;color:var(--dk)">رفع PDF (ملخص)</div>
+              </div>
+              <div onclick="simulateUpload('ppt')" style="border:2px dashed var(--gm);border-radius:10px;padding:20px 16px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg)" onmouseover="this.style.borderColor='var(--amb)'" onmouseout="this.style.borderColor='var(--gm)'">
+                <div style="font-size:20px;margin-bottom:4px">📊</div>
+                <div style="font-size:12px;font-weight:600;color:var(--dk)">رفع عرض تقديمي</div>
+              </div>
+            </div>
+          </div>
+          <div id="upload-msg" style="display:none;background:var(--tl);border:1px solid var(--tb);border-radius:8px;padding:12px 16px;margin-top:14px;font-size:13px;color:var(--td);font-weight:600"></div>
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <button class="btn btn-s" onclick="alert('تم الحفظ كمسودة ✓')">💾 حفظ كمسودة</button>
+            <button class="btn btn-p" onclick="publishLesson()">🚀 نشر الدرس</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /upload -->
+
+    <!-- QUIZ BUILDER -->
+    <div class="tab-panel" id="t-quizzes">
+      <div class="card">
+        <div class="ch"><div class="ct">📊 إنشاء اختبار جديد</div></div>
+        <div class="cb">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:5px;text-transform:uppercase">عنوان الاختبار</div>
+              <input style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:8px 12px;font-family:var(--font);font-size:13px;color:var(--dk)" placeholder="اختبار الهندسة — الوحدة 3"/>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:5px;text-transform:uppercase">نوع الاختبار</div>
+              <select style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:8px 12px;font-family:var(--font);font-size:13px;color:var(--dk)">
+                <option>اختبار قصير (بعد الدرس)</option>
+                <option>اختبار نهاية الوحدة</option>
+                <option>محاكاة امتحان جهوي</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:5px;text-transform:uppercase">مدة الاختبار</div>
+              <select style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:8px 12px;font-family:var(--font);font-size:13px;color:var(--dk)">
+                <option>10 دقائق</option><option>20 دقيقة</option><option>30 دقيقة</option><option>45 دقيقة</option><option>90 دقيقة</option>
+              </select>
+            </div>
+          </div>
+          <div id="questions-list">
+            <div class="q-item" style="border:1px solid var(--gm);border-radius:10px;padding:14px;margin-bottom:10px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <span style="background:var(--tl);color:var(--td);font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px">س 1</span>
+                <span style="font-size:11px;color:var(--gt)">اختيار من متعدد</span>
+                <button onclick="this.closest('.q-item').remove()" style="margin-right:auto;background:none;border:none;cursor:pointer;color:var(--cor);font-size:16px">✕</button>
+              </div>
+              <input style="width:100%;border:1px solid var(--gl);border-radius:7px;padding:8px 12px;font-family:var(--font);font-size:13px;color:var(--dk);margin-bottom:8px" placeholder="اكتب السؤال هنا..."/>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <input style="border:1px solid #9FE1CB;border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:12px;color:var(--td);background:var(--tl)" placeholder="✓ الإجابة الصحيحة"/>
+                <input style="border:1px solid var(--gl);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:12px;color:var(--dk)" placeholder="خيار 2"/>
+                <input style="border:1px solid var(--gl);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:12px;color:var(--dk)" placeholder="خيار 3"/>
+                <input style="border:1px solid var(--gl);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:12px;color:var(--dk)" placeholder="خيار 4"/>
+              </div>
+            </div>
+          </div>
+          <button onclick="addQuestion()" class="btn btn-s" style="width:100%;margin-top:4px;padding:10px">+ إضافة سؤال جديد</button>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <button class="btn btn-s" onclick="alert('تم الحفظ كمسودة ✓')">💾 مسودة</button>
+            <button class="btn btn-p" onclick="alert('تم نشر الاختبار بنجاح! 🎉')">🚀 نشر الاختبار</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /quizzes -->
+
+    <!-- STUDENTS -->
+    <div class="tab-panel" id="t-students">
+      <div class="card">
+        <div class="ch">
+          <div class="ct">👨‍🎓 تلاميذي (2,104)</div>
+          <div style="display:flex;gap:8px">
+            <input style="border:1px solid var(--gm);border-radius:7px;padding:6px 12px;font-family:var(--font);font-size:12px;color:var(--dk)" placeholder="🔍 ابحث..."/>
+            <select style="border:1px solid var(--gm);border-radius:7px;padding:6px 10px;font-family:var(--font);font-size:12px;color:var(--dk)">
+              <option>كل المستويات</option><option>1AC</option><option>2AC</option><option>3AC</option>
+            </select>
+          </div>
+        </div>
+        <div class="cb">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="border-bottom:2px solid var(--gl)">
+                <th style="text-align:right;padding:8px;color:var(--gt);font-weight:600;font-size:11px;text-transform:uppercase">التلميذ</th>
+                <th style="text-align:center;padding:8px;color:var(--gt);font-weight:600;font-size:11px;text-transform:uppercase">المستوى</th>
+                <th style="text-align:center;padding:8px;color:var(--gt);font-weight:600;font-size:11px;text-transform:uppercase">الإنجاز</th>
+                <th style="text-align:center;padding:8px;color:var(--gt);font-weight:600;font-size:11px;text-transform:uppercase">المعدل</th>
+                <th style="text-align:center;padding:8px;color:var(--gt);font-weight:600;font-size:11px;text-transform:uppercase">آخر نشاط</th>
+                <th style="text-align:center;padding:8px;color:var(--gt);font-weight:600;font-size:11px;text-transform:uppercase">إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody">
+              <tr style="border-bottom:1px solid var(--gl)">
+                <td style="padding:10px 8px;display:flex;align-items:center;gap:8px">
+                  <div style="width:32px;height:32px;border-radius:50%;background:var(--tl);color:var(--td);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">أ</div>
+                  <div><div style="font-weight:600;color:var(--dk)">أيمن بوزيان</div><div style="font-size:11px;color:var(--gt)">مراكش</div></div>
+                </td>
+                <td style="text-align:center;padding:8px"><span class="tag tag-g">2AC</span></td>
+                <td style="text-align:center;padding:8px;font-weight:700;color:var(--teal)">72%</td>
+                <td style="text-align:center;padding:8px;font-weight:700;color:var(--teal)">17.5</td>
+                <td style="text-align:center;padding:8px;font-size:11px;color:var(--gt)">اليوم</td>
+                <td style="text-align:center;padding:8px"><button class="btn btn-s" style="font-size:11px;padding:5px 10px">رسالة</button></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--gl)">
+                <td style="padding:10px 8px;display:flex;align-items:center;gap:8px">
+                  <div style="width:32px;height:32px;border-radius:50%;background:#FFF3CD;color:#7a5600;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">ز</div>
+                  <div><div style="font-weight:600;color:var(--dk)">زينب أمجار</div><div style="font-size:11px;color:var(--gt)">الرباط</div></div>
+                </td>
+                <td style="text-align:center;padding:8px"><span class="tag tag-p">3AC</span></td>
+                <td style="text-align:center;padding:8px;font-weight:700;color:var(--teal)">94%</td>
+                <td style="text-align:center;padding:8px;font-weight:700;color:var(--teal)">19.2</td>
+                <td style="text-align:center;padding:8px;font-size:11px;color:var(--gt)">أمس</td>
+                <td style="text-align:center;padding:8px"><button class="btn btn-s" style="font-size:11px;padding:5px 10px">رسالة</button></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--gl)">
+                <td style="padding:10px 8px;display:flex;align-items:center;gap:8px">
+                  <div style="width:32px;height:32px;border-radius:50%;background:var(--cl);color:var(--cor);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">ع</div>
+                  <div><div style="font-weight:600;color:var(--dk)">عمر شفيق</div><div style="font-size:11px;color:var(--gt)">فاس</div></div>
+                </td>
+                <td style="text-align:center;padding:8px"><span class="tag tag-g">2AC</span></td>
+                <td style="text-align:center;padding:8px;font-weight:700;color:var(--cor)">32%</td>
+                <td style="text-align:center;padding:8px;font-weight:700;color:var(--cor)">8.5</td>
+                <td style="text-align:center;padding:8px;font-size:11px;color:var(--cor)">5 أيام</td>
+                <td style="text-align:center;padding:8px"><button class="btn" style="background:var(--cl);color:var(--cor);font-size:11px;padding:5px 10px">تنبيه</button></td>
+              </tr>
+              <tr>
+                <td style="padding:10px 8px;display:flex;align-items:center;gap:8px">
+                  <div style="width:32px;height:32px;border-radius:50%;background:var(--al);color:var(--amb);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">س</div>
+                  <div><div style="font-weight:600;color:var(--dk)">سارة الأمين</div><div style="font-size:11px;color:var(--gt)">الدار البيضاء</div></div>
+                </td>
+                <td style="text-align:center;padding:8px"><span class="tag tag-a">1AC</span></td>
+                <td style="text-align:center;padding:8px;font-weight:700;color:var(--teal)">81%</td>
+                <td style="text-align:center;padding:8px;font-weight:700;color:var(--teal)">16.0</td>
+                <td style="text-align:center;padding:8px;font-size:11px;color:var(--gt)">اليوم</td>
+                <td style="text-align:center;padding:8px"><button class="btn btn-s" style="font-size:11px;padding:5px 10px">رسالة</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /students -->
+
+    <!-- LIVE SCHEDULE -->
+    <div class="tab-panel" id="t-live">
+      <div class="card">
+        <div class="ch"><div class="ct">📡 جدولة حصة مباشرة</div></div>
+        <div class="cb">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:5px;text-transform:uppercase">عنوان الحصة</div>
+              <input style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk)" placeholder="مراجعة الهندسة الفضائية"/>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:5px;text-transform:uppercase">الموعد</div>
+              <input type="datetime-local" style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk)"/>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:5px;text-transform:uppercase">الفئة المستهدفة</div>
+              <select style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk)">
+                <option>كل تلاميذي</option><option>1AC فقط</option><option>2AC فقط</option><option>3AC فقط</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gt);font-weight:700;margin-bottom:5px;text-transform:uppercase">مدة الحصة</div>
+              <select style="width:100%;border:1px solid var(--gm);border-radius:8px;padding:9px 12px;font-family:var(--font);font-size:13px;color:var(--dk)">
+                <option>30 دقيقة</option><option>45 دقيقة</option><option>60 دقيقة</option><option>90 دقيقة</option>
+              </select>
+            </div>
+          </div>
+          <div style="background:var(--tl);border-radius:8px;padding:14px;margin-bottom:14px">
+            <div style="font-size:13px;font-weight:600;color:var(--td);margin-bottom:6px">⚙️ إعدادات الحصة</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                <input type="checkbox" checked style="accent-color:var(--teal)"/> تسجيل تلقائي للحصة
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                <input type="checkbox" checked style="accent-color:var(--teal)"/> إشعار التلاميذ قبل ساعة
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                <input type="checkbox" style="accent-color:var(--teal)"/> تفعيل السبورة التفاعلية
+              </label>
+            </div>
+          </div>
+          <button class="btn btn-p" onclick="alert('تم جدولة الحصة! سيصل إشعار لجميع التلاميذ 📡')">📡 جدولة الحصة المباشرة</button>
+        </div>
+      </div>
+    </div><!-- /live -->
+
+  </div><!-- /.cnt -->
+</div><!-- /.main -->
+
+<script>
+const titles2={home:'لوحة التحكم',lessons:'دروسي',upload:'رفع درس جديد',quizzes:'إنشاء اختبار',students:'تلاميذي',performance:'تقارير الأداء',live:'جدولة حصة مباشرة',earnings:'أرباحي',settings:'الإعدادات'};
+function go(el,tab){
+  document.querySelectorAll('.sb-a').forEach(a=>a.classList.remove('on'));
+  if(el)el.classList.add('on');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  const panel=document.getElementById('t-'+tab);
+  if(panel){panel.classList.add('active');}
+  document.getElementById('pg-title').textContent=titles2[tab]||'';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* Chart */
+(function(){
+  const c=document.getElementById('perf');if(!c)return;
+  const ctx=c.getContext('2d');
+  const W=c.offsetWidth||300,H=130;
+  c.width=W*devicePixelRatio;c.height=H*devicePixelRatio;
+  ctx.scale(devicePixelRatio,devicePixelRatio);
+  const active=[180,220,190,260,240,280,230];
+  const pL=8,pR=8,pT=8,pB=10,cW=W-pL-pR,cH=H-pT-pB,bW=cW/7;
+  const mx=300;
+  active.forEach((v,i)=>{
+    const x=pL+i*bW+bW*.15,bh=(v/mx)*cH,y=pT+cH-bh;
+    ctx.fillStyle=i===5?'rgba(29,158,117,.9)':'rgba(29,158,117,.25)';
+    ctx.beginPath();ctx.roundRect(x,y,bW*.7,bh,3);ctx.fill();
+    ctx.fillStyle='#5F5E5A';ctx.font='9px Cairo';
+    ctx.fillText(v,x+bW*.05,y-3);
+  });
+})();
+
+/* Upload simulation */
+function simulateUpload(type){
+  if(type==='video'){
+    document.getElementById('vid-prog').style.display='block';
+    let p=0;const t=setInterval(()=>{
+      p=Math.min(p+4,100);
+      document.getElementById('vid-fill').style.width=p+'%';
+      document.getElementById('vid-pct').textContent=p+'%';
+      if(p>=100){clearInterval(t);
+        const m=document.getElementById('upload-msg');
+        m.style.display='block';m.textContent='✅ تم رفع الفيديو بنجاح! جاهز للنشر.';
+      }
+    },60);
+  } else {
+    const m=document.getElementById('upload-msg');
+    m.style.display='block';
+    m.textContent='✅ تم رفع الملف بنجاح!';
+  }
+}
+function publishLesson(){
+  const t=document.getElementById('lesson-title-inp').value||'الدرس الجديد';
+  alert(`🚀 تم نشر درس "${t}" بنجاح!\nسيصل إشعار لجميع التلاميذ المشتركين.`);
+}
+
+let qCount=1;
+function addQuestion(){
+  qCount++;
+  const list=document.getElementById('questions-list');
+  const div=document.createElement('div');
+  div.className='q-item';
+  div.style.cssText='border:1px solid var(--gm);border-radius:10px;padding:14px;margin-bottom:10px';
+  div.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+    <span style="background:var(--tl);color:var(--td);font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px">س ${qCount}</span>
+    <select style="font-family:var(--font);font-size:12px;border:1px solid var(--gm);border-radius:6px;padding:3px 8px;color:var(--dk)">
+      <option>اختيار من متعدد</option><option>صح / خطأ</option><option>ملء الفراغ</option>
+    </select>
+    <button onclick="this.closest('.q-item').remove()" style="margin-right:auto;background:none;border:none;cursor:pointer;color:var(--cor);font-size:16px">✕</button>
+  </div>
+  <input style="width:100%;border:1px solid var(--gl);border-radius:7px;padding:8px 12px;font-family:var(--font);font-size:13px;color:var(--dk);margin-bottom:8px;outline:none" placeholder="اكتب السؤال هنا..."/>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+    <input style="border:1px solid #9FE1CB;border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:12px;color:var(--td);background:var(--tl);outline:none" placeholder="✓ الإجابة الصحيحة"/>
+    <input style="border:1px solid var(--gl);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:12px;color:var(--dk);outline:none" placeholder="خيار 2"/>
+    <input style="border:1px solid var(--gl);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:12px;color:var(--dk);outline:none" placeholder="خيار 3"/>
+    <input style="border:1px solid var(--gl);border-radius:7px;padding:7px 10px;font-family:var(--font);font-size:12px;color:var(--dk);outline:none" placeholder="خيار 4"/>
+  </div>`;
+  list.appendChild(div);
+}
+</script>
+</body>
+</html>

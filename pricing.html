@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>الاشتراك والدفع — أكاديمية البيروني</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--teal:#1D9E75;--td:#085041;--tl:#E1F5EE;--tb:#9FE1CB;--pur:#534AB7;--pl:#EEEDFE;--amb:#BA7517;--al:#FAEEDA;--bg:#F5F4EF;--wh:#fff;--dk:#1a1a18;--gt:#5F5E5A;--gm:#D3D1C7;--gl:#EBEBE4;--font:'Cairo',system-ui,sans-serif;--r:14px;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--bg);color:var(--dk);direction:rtl;min-height:100vh}
+    .nav{background:var(--wh);border-bottom:1px solid var(--gm);padding:0 28px;height:64px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:40}
+    .logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--td);text-decoration:none}
+    .back{margin-right:auto;background:none;border:1px solid var(--gm);border-radius:8px;padding:7px 16px;font-family:var(--font);font-size:13px;color:var(--dk);cursor:pointer;font-weight:600;transition:.18s}
+    .back:hover{background:var(--gl)}
+    .wrap{max-width:1100px;margin:0 auto;padding:48px 24px}
+    .header{text-align:center;margin-bottom:48px}
+    .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--teal);text-transform:uppercase;background:var(--tl);padding:4px 14px;border-radius:20px;margin-bottom:12px}
+    h1{font-size:clamp(26px,4vw,38px);font-weight:800;margin-bottom:10px}
+    .sub{font-size:16px;color:var(--gt)}
+    .toggle-row{display:flex;justify-content:center;gap:4px;background:var(--gl);border:1px solid var(--gm);border-radius:10px;padding:4px;width:fit-content;margin:0 auto 40px}
+    .tog-btn{padding:8px 22px;border-radius:8px;font-family:var(--font);font-size:14px;font-weight:600;border:none;cursor:pointer;background:none;color:var(--gt);transition:.18s}
+    .tog-btn.on{background:var(--wh);color:var(--td);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+    .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:40px}
+    .plan{background:var(--wh);border:1.5px solid var(--gm);border-radius:var(--r);padding:28px 24px;position:relative;transition:.2s}
+    .plan:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.09)}
+    .plan.featured{border-color:var(--teal);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
+    .plan-pop{position:absolute;top:-12px;right:50%;transform:translateX(50%);background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:12px;white-space:nowrap}
+    .plan-name{font-size:13px;font-weight:700;color:var(--gt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+    .plan-price{display:flex;align-items:baseline;gap:4px;margin-bottom:4px}
+    .plan-cur{font-size:16px;color:var(--gt)}
+    .plan-num{font-size:44px;font-weight:900;color:var(--dk);line-height:1}
+    .plan-per{font-size:14px;color:var(--gt)}
+    .plan-billed{font-size:12px;color:var(--gt);margin-bottom:24px}
+    .plan-feats{display:flex;flex-direction:column;gap:9px;font-size:13px;margin-bottom:24px}
+    .feat{display:flex;align-items:flex-start;gap:8px}
+    .feat-y{color:var(--teal);font-weight:700;flex-shrink:0}
+    .feat-n{color:var(--gm);flex-shrink:0}
+    .plan-btn{display:flex;justify-content:center;align-items:center;padding:12px;border-radius:9px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:.18s;width:100%}
+    .plan-btn-p{background:var(--teal);color:#fff}
+    .plan-btn-p:hover{background:var(--td)}
+    .plan-btn-s{background:var(--gl);color:var(--dk)}
+    .plan-btn-s:hover{background:var(--gm)}
+    .free-bar{text-align:center;font-size:15px;color:var(--gt);margin-bottom:48px}
+    .free-bar a{color:var(--teal);font-weight:600}
+    /* Checkout */
+    .checkout{display:none;max-width:680px;margin:0 auto}
+    .checkout.visible{display:block}
+    .plans-grid.hidden{display:none}
+    .co-card{background:var(--wh);border-radius:var(--r);border:1px solid var(--gm);padding:24px;margin-bottom:18px}
+    .co-title{font-size:16px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+    .form-group label{display:block;font-size:11px;font-weight:700;color:var(--gt);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+    .form-group input,.form-group select{width:100%;border:1px solid var(--gm);border-radius:8px;padding:10px 12px;font-family:var(--font);font-size:13px;color:var(--dk);outline:none;transition:.18s}
+    .form-group input:focus{border-color:var(--teal)}
+    .order-summary{background:var(--tl);border-radius:10px;padding:16px;margin-bottom:16px}
+    .os-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+    .os-total{font-size:17px;font-weight:800;border-top:1px solid var(--tb);padding-top:8px;margin-top:8px}
+    .pay-methods{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .pay-m{border:2px solid var(--gm);border-radius:9px;padding:10px 18px;cursor:pointer;font-size:13px;font-weight:600;color:var(--gt);transition:.18s;display:flex;align-items:center;gap:8px}
+    .pay-m.sel{border-color:var(--teal);color:var(--td);background:var(--tl)}
+    .back-btn{background:none;border:1px solid var(--gm);border-radius:8px;padding:8px 16px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;color:var(--dk);margin-bottom:14px}
+    .success-screen{display:none;text-align:center;padding:60px 24px}
+    .success-screen.visible{display:block}
+    @media(max-width:720px){.plans{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="logo">🌿 أكاديمية البيروني</a>
+  <button class="back" onclick="history.back()">← رجوع</button>
+</nav>
+
+<!-- PLANS VIEW -->
+<div class="wrap" id="plans-view">
+  <div class="header">
+    <div class="eyebrow">الأسعار والاشتراكات</div>
+    <h1>اختر خطتك وابدأ التفوق</h1>
+    <p class="sub">أسعار مدروسة تناسب كل أسرة مغربية — إلغاء في أي وقت</p>
+  </div>
+
+  <div class="toggle-row">
+    <button class="tog-btn on" id="tb-annual" onclick="setBilling('annual')">سنوي (وفّر 33%)</button>
+    <button class="tog-btn" id="tb-quarterly" onclick="setBilling('quarterly')">فصلي</button>
+    <button class="tog-btn" id="tb-monthly" onclick="setBilling('monthly')">شهري</button>
+  </div>
+
+  <div class="plans plans-grid">
+    <!-- Basic -->
+    <div class="plan">
+      <div class="plan-name">أساسي</div>
+      <div class="plan-price">
+        <span class="plan-cur">درهم</span>
+        <span class="plan-num" id="p1">67</span>
+        <span class="plan-per">/شهر</span>
+      </div>
+      <div class="plan-billed" id="pb1">محاسبة سنوية — 799 درهم</div>
+      <div class="plan-feats">
+        <div class="feat"><span class="feat-y">✓</span>جميع الدروس المصورة (6 مواد)</div>
+        <div class="feat"><span class="feat-y">✓</span>ملفات PDF وخرائط ذهنية</div>
+        <div class="feat"><span class="feat-y">✓</span>تمارين تفاعلية ذاتية التصحيح</div>
+        <div class="feat"><span class="feat-y">✓</span>اختبارات قصيرة ونهاية الوحدة</div>
+        <div class="feat"><span class="feat-y">✓</span>مساعد ذكي (30 رسالة/يوم)</div>
+        <div class="feat"><span class="feat-y">✓</span>شهادات إتمام رقمية</div>
+        <div class="feat"><span class="feat-n">—</span><span style="color:var(--gm)">حصص مباشرة مع الأستاذ</span></div>
+        <div class="feat"><span class="feat-n">—</span><span style="color:var(--gm)">تقارير الآباء الأسبوعية</span></div>
+      </div>
+      <button class="plan-btn plan-btn-s" onclick="startCheckout('أساسي',67,'pb1')">ابدأ الآن</button>
+    </div>
+    <!-- Advanced -->
+    <div class="plan featured">
+      <div class="plan-pop">الأكثر اختياراً</div>
+      <div class="plan-name">متقدم</div>
+      <div class="plan-price">
+        <span class="plan-cur">درهم</span>
+        <span class="plan-num" id="p2">83</span>
+        <span class="plan-per">/شهر</span>
+      </div>
+      <div class="plan-billed" id="pb2">محاسبة فصلية — 249 درهم</div>
+      <div class="plan-feats">
+        <div class="feat"><span class="feat-y">✓</span>كل ما في الأساسي</div>
+        <div class="feat"><span class="feat-y">✓</span>4 حصص مباشرة / شهر</div>
+        <div class="feat"><span class="feat-y">✓</span>تقارير أسبوعية PDF للآباء</div>
+        <div class="feat"><span class="feat-y">✓</span>محاكاة امتحانات جهوية وموحدة</div>
+        <div class="feat"><span class="feat-y">✓</span>مساعد ذكي غير محدود</div>
+        <div class="feat"><span class="feat-y">✓</span>متابعة الوالدين المتقدمة</div>
+        <div class="feat"><span class="feat-y">✓</span>دعم أولوية (رد خلال ساعة)</div>
+        <div class="feat"><span class="feat-y">✓</span>تحميل المحتوى للمشاهدة Offline</div>
+      </div>
+      <button class="plan-btn plan-btn-p" onclick="startCheckout('متقدم',83,'pb2')">ابدأ الآن</button>
+    </div>
+    <!-- Family -->
+    <div class="plan">
+      <div class="plan-name">عائلي</div>
+      <div class="plan-price">
+        <span class="plan-cur">درهم</span>
+        <span class="plan-num" id="p3">117</span>
+        <span class="plan-per">/شهر</span>
+      </div>
+      <div class="plan-billed" id="pb3">محاسبة سنوية — 1,399 درهم (3 تلاميذ)</div>
+      <div class="plan-feats">
+        <div class="feat"><span class="feat-y">✓</span>كل ما في المتقدم</div>
+        <div class="feat"><span class="feat-y">✓</span>حتى 3 تلاميذ في العائلة</div>
+        <div class="feat"><span class="feat-y">✓</span>حصص مباشرة غير محدودة</div>
+        <div class="feat"><span class="feat-y">✓</span>أستاذ مرافق خاص لكل تلميذ</div>
+        <div class="feat"><span class="feat-y">✓</span>لوحة مراقبة عائلية موحدة</div>
+        <div class="feat"><span class="feat-y">✓</span>خطة مراجعة شخصية بالذكاء الاصطناعي</div>
+        <div class="feat"><span class="feat-y">✓</span>أولوية قصوى للدعم</div>
+        <div class="feat"><span class="feat-y">✓</span>إلغاء في أي وقت</div>
+      </div>
+      <button class="plan-btn plan-btn-s" onclick="startCheckout('عائلي',117,'pb3')">ابدأ الآن</button>
+    </div>
+  </div>
+
+  <div class="free-bar">
+    أو <strong>جرّب مجاناً</strong> — أول درس من كل مادة بدون بطاقة بنكية.
+    <a href="dashboard.html">ابدأ مجاناً ←</a>
+  </div>
+
+  <!-- FAQ -->
+  <div style="max-width:640px;margin:0 auto">
+    <h2 style="text-align:center;font-size:22px;font-weight:700;margin-bottom:24px">أسئلة شائعة</h2>
+    <div id="faqs"></div>
+  </div>
+</div>
+
+<!-- CHECKOUT VIEW -->
+<div class="wrap checkout" id="checkout-view">
+  <div class="success-screen" id="success-screen">
+    <div style="font-size:72px;margin-bottom:16px">🎉</div>
+    <h2 style="font-size:28px;font-weight:800;margin-bottom:8px">تم الاشتراك بنجاح!</h2>
+    <p style="font-size:16px;color:var(--gt);margin-bottom:28px">مرحباً بك في أكاديمية البيروني — رحلة التفوق تبدأ الآن</p>
+    <a href="dashboard.html" style="background:var(--teal);color:#fff;border-radius:10px;padding:13px 32px;font-size:15px;font-weight:700;text-decoration:none;display:inline-block">ادخل للوحة التحكم ←</a>
+  </div>
+  <div id="checkout-form">
+    <button class="back-btn" onclick="backToPlans()">← العودة للخطط</button>
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+      <div style="flex:1;min-width:300px">
+        <div class="co-card">
+          <div class="co-title">👤 معلومات التلميذ</div>
+          <div class="form-row">
+            <div class="form-group"><label>اسم التلميذ</label><input placeholder="الاسم الكامل"/></div>
+            <div class="form-group"><label>المستوى الدراسي</label>
+              <select><option>السنة الأولى إعدادي</option><option selected>السنة الثانية إعدادي</option><option>السنة الثالثة إعدادي</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>البريد الإلكتروني</label><input type="email" placeholder="email@example.com"/></div>
+            <div class="form-group"><label>رقم الهاتف</label><input placeholder="06XXXXXXXX"/></div>
+          </div>
+          <div class="form-group"><label>المدينة</label><input placeholder="مراكش"/></div>
+        </div>
+
+        <div class="co-card">
+          <div class="co-title">💳 طريقة الدفع</div>
+          <div class="pay-methods">
+            <div class="pay-m sel" onclick="selPay(this)">💳 CMI (بطاقة مغربية)</div>
+            <div class="pay-m" onclick="selPay(this)">🌐 Stripe (دولي)</div>
+            <div class="pay-m" onclick="selPay(this)">📱 تحويل بنكي</div>
+          </div>
+          <div id="cmi-form">
+            <div class="form-row">
+              <div class="form-group" style="grid-column:span 2"><label>رقم البطاقة</label><input placeholder="XXXX XXXX XXXX XXXX" maxlength="19"/></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>تاريخ الانتهاء</label><input placeholder="MM/YY" maxlength="5"/></div>
+              <div class="form-group"><label>رمز CVV</label><input placeholder="XXX" maxlength="3" type="password"/></div>
+            </div>
+          </div>
+          <div style="background:var(--tl);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--td);display:flex;gap:8px;align-items:center;margin-top:8px">
+            🔒 دفع آمن ومشفر SSL — بياناتك محمية تماماً
+          </div>
+        </div>
+      </div>
+
+      <div style="width:280px;flex-shrink:0">
+        <div class="co-card">
+          <div class="co-title">📋 ملخص الطلب</div>
+          <div class="order-summary">
+            <div class="os-row"><span>الخطة</span><span id="co-plan-name" style="font-weight:700">متقدم</span></div>
+            <div class="os-row"><span>نوع الاشتراك</span><span id="co-period" style="font-weight:700">فصلي</span></div>
+            <div class="os-row"><span>السعر</span><span id="co-price" style="font-weight:700">249 درهم</span></div>
+            <div class="os-row"><span>خصم</span><span style="color:var(--teal);font-weight:700">-0 درهم</span></div>
+            <div class="os-row os-total"><span>المجموع</span><span id="co-total" style="color:var(--td)">249 درهم</span></div>
+          </div>
+          <div style="font-size:11px;color:var(--gt);margin-bottom:14px;line-height:1.6">
+            بالنقر على "إتمام الاشتراك" فأنت توافق على
+            <a href="#" style="color:var(--teal)">شروط الاستخدام</a> و
+            <a href="#" style="color:var(--teal)">سياسة الخصوصية</a>.
+          </div>
+          <button onclick="completeCheckout()" style="width:100%;background:var(--teal);color:#fff;border:none;border-radius:10px;padding:14px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:.18s" onmouseover="this.style.background='var(--td)'" onmouseout="this.style.background='var(--teal)'">
+            🔒 إتمام الاشتراك
+          </button>
+          <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--gt)">
+            ✓ إلغاء مجاني في أي وقت<br/>
+            ✓ ضمان استرداد 7 أيام
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const billingData={
+  annual:  {p1:67,  p2:83,  p3:117, b1:'محاسبة سنوية — 799 درهم',        b2:'محاسبة سنوية — 999 درهم',       b3:'محاسبة سنوية — 1,399 درهم (3 تلاميذ)',label:'سنوي'},
+  quarterly:{p1:83, p2:99,  p3:149, b1:'محاسبة فصلية — 249 درهم',         b2:'محاسبة فصلية — 299 درهم',       b3:'محاسبة فصلية — 449 درهم (3 تلاميذ)',label:'فصلي'},
+  monthly: {p1:99,  p2:149, p3:199, b1:'محاسبة شهرية',                    b2:'محاسبة شهرية',                  b3:'محاسبة شهرية (3 تلاميذ)',             label:'شهري'},
+};
+let currentBilling='annual';
+
+function setBilling(b){
+  currentBilling=b;
+  const d=billingData[b];
+  ['1','2','3'].forEach(i=>{
+    const n=document.getElementById('p'+i),pb=document.getElementById('pb'+i);
+    if(n){const s=+n.textContent,t=d['p'+i];animPrice(n,s,t);}
+    if(pb)pb.textContent=d['b'+i];
+  });
+  ['annual','quarterly','monthly'].forEach(x=>{
+    document.getElementById('tb-'+x).classList.toggle('on',x===b);
+  });
+}
+function animPrice(el,s,t){
+  const t0=performance.now();
+  (function f(now){const p=Math.min((now-t0)/350,1),e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(s+(t-s)*e);if(p<1)requestAnimationFrame(f);})(t0);
+}
+
+let selectedPlan='متقدم',selectedPrice=249;
+function startCheckout(plan,pricePerMonth,pbId){
+  const bd=billingData[currentBilling];
+  const periods={annual:'سنوي',quarterly:'فصلي',monthly:'شهري'};
+  const totals={annual:{p1:799,p2:999,p3:1399},quarterly:{p1:249,p2:299,p3:449},monthly:{p1:99,p2:149,p3:199}};
+  const idx={'أساسي':'1','متقدم':'2','عائلي':'3'};
+  const total=totals[currentBilling]['p'+idx[plan]];
+  document.getElementById('co-plan-name').textContent=plan;
+  document.getElementById('co-period').textContent=periods[currentBilling];
+  document.getElementById('co-price').textContent=total+' درهم';
+  document.getElementById('co-total').textContent=total+' درهم';
+  document.getElementById('plans-view').style.display='none';
+  document.getElementById('checkout-view').classList.add('visible');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function backToPlans(){
+  document.getElementById('plans-view').style.display='block';
+  document.getElementById('checkout-view').classList.remove('visible');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function selPay(el){document.querySelectorAll('.pay-m').forEach(m=>m.classList.remove('sel'));el.classList.add('sel');}
+function completeCheckout(){
+  document.getElementById('checkout-form').style.display='none';
+  document.getElementById('success-screen').classList.add('visible');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// FAQ
+const faqs=[
+  {q:'هل يمكنني الإلغاء في أي وقت؟',a:'نعم، يمكنك إلغاء اشتراكك في أي وقت من لوحة تحكمك دون أي رسوم إضافية. في حال الإلغاء خلال 7 أيام من الاشتراك نسترجع لك كامل المبلغ.'},
+  {q:'هل المنصة تغطي المنهج المغربي الرسمي؟',a:'نعم، جميع الدروس مصممة وفق المنهج الرسمي للتعليم الإعدادي المغربي (1AC، 2AC، 3AC) ومتوافقة مع وزارة التربية الوطنية.'},
+  {q:'هل يمكن لأكثر من تلميذ استخدام نفس الحساب؟',a:'في الخطة العائلية يمكن لـ 3 تلاميذ استخدام الاشتراك نفسه بحسابات مستقلة لكل منهم. الخطط الأخرى لتلميذ واحد فقط.'},
+  {q:'ما هي طرق الدفع المتاحة؟',a:'نقبل بطاقات CMI المغربية (Visa, Mastercard)، بطاقات Stripe الدولية، والتحويل البنكي. جميع المدفوعات آمنة ومشفرة.'},
+  {q:'هل توجد نسخة مجانية؟',a:'نعم! يمكنك الاستمتاع بأول درس من كل مادة مجاناً بدون بطاقة بنكية، إلى جانب 10 رسائل يومية مع المساعد الذكي.'},
+];
+const faqEl=document.getElementById('faqs');
+faqs.forEach((f,i)=>{
+  const d=document.createElement('div');
+  d.style.cssText='border:1px solid var(--gm);border-radius:10px;margin-bottom:10px;overflow:hidden;background:var(--wh)';
+  d.innerHTML=`<div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block';this.querySelector('span').textContent=this.nextElementSibling.style.display==='block'?'−':'+';" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;font-size:14px;font-weight:600"><span style="flex:1">${f.q}</span><span style="font-size:20px;color:var(--teal);font-weight:700;margin-right:auto;margin-left:8px">+</span></div><div style="display:none;padding:0 18px 14px;font-size:13px;color:var(--gt);line-height:1.7">${f.a}</div>`;
+  faqEl.appendChild(d);
+});
+</script>
+</body>
+</html>
