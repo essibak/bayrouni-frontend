@@ -2,313 +2,657 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
   <title>الاشتراك والدفع — أكاديمية البيروني</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
   <style>
-    :root{--teal:#1D9E75;--td:#085041;--tl:#E1F5EE;--tb:#9FE1CB;--pur:#534AB7;--pl:#EEEDFE;--amb:#BA7517;--al:#FAEEDA;--bg:#F5F4EF;--wh:#fff;--dk:#1a1a18;--gt:#5F5E5A;--gm:#D3D1C7;--gl:#EBEBE4;--font:'Cairo',system-ui,sans-serif;--r:14px;}
+    :root{
+      --teal:#1D9E75;--td:#085041;--tm:#0F6E56;--tl:#E1F5EE;--tb:#9FE1CB;
+      --pur:#534AB7;--pl:#EEEDFE;--pd:#26215C;
+      --amb:#BA7517;--al:#FAEEDA;
+      --cor:#D85A30;--cl:#FAECE7;
+      --bg:#F5F4EF;--wh:#fff;--dk:#1a1a18;--gt:#5F5E5A;--gm:#D3D1C7;--gl:#EBEBE4;
+      --font:'Cairo',system-ui,sans-serif;--r:14px;
+    }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{-webkit-text-size-adjust:100%}
     body{font-family:var(--font);background:var(--bg);color:var(--dk);direction:rtl;min-height:100vh}
-    .nav{background:var(--wh);border-bottom:1px solid var(--gm);padding:0 28px;height:64px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:40}
-    .logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--td);text-decoration:none}
-    .back{margin-right:auto;background:none;border:1px solid var(--gm);border-radius:8px;padding:7px 16px;font-family:var(--font);font-size:13px;color:var(--dk);cursor:pointer;font-weight:600;transition:.18s}
-    .back:hover{background:var(--gl)}
-    .wrap{max-width:1100px;margin:0 auto;padding:48px 24px}
-    .header{text-align:center;margin-bottom:48px}
-    .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--teal);text-transform:uppercase;background:var(--tl);padding:4px 14px;border-radius:20px;margin-bottom:12px}
-    h1{font-size:clamp(26px,4vw,38px);font-weight:800;margin-bottom:10px}
-    .sub{font-size:16px;color:var(--gt)}
-    .toggle-row{display:flex;justify-content:center;gap:4px;background:var(--gl);border:1px solid var(--gm);border-radius:10px;padding:4px;width:fit-content;margin:0 auto 40px}
-    .tog-btn{padding:8px 22px;border-radius:8px;font-family:var(--font);font-size:14px;font-weight:600;border:none;cursor:pointer;background:none;color:var(--gt);transition:.18s}
-    .tog-btn.on{background:var(--wh);color:var(--td);box-shadow:0 1px 4px rgba(0,0,0,.1)}
-    .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:40px}
-    .plan{background:var(--wh);border:1.5px solid var(--gm);border-radius:var(--r);padding:28px 24px;position:relative;transition:.2s}
-    .plan:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.09)}
-    .plan.featured{border-color:var(--teal);box-shadow:0 0 0 3px rgba(29,158,117,.12)}
-    .plan-pop{position:absolute;top:-12px;right:50%;transform:translateX(50%);background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:12px;white-space:nowrap}
-    .plan-name{font-size:13px;font-weight:700;color:var(--gt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
-    .plan-price{display:flex;align-items:baseline;gap:4px;margin-bottom:4px}
-    .plan-cur{font-size:16px;color:var(--gt)}
-    .plan-num{font-size:44px;font-weight:900;color:var(--dk);line-height:1}
-    .plan-per{font-size:14px;color:var(--gt)}
-    .plan-billed{font-size:12px;color:var(--gt);margin-bottom:24px}
-    .plan-feats{display:flex;flex-direction:column;gap:9px;font-size:13px;margin-bottom:24px}
-    .feat{display:flex;align-items:flex-start;gap:8px}
-    .feat-y{color:var(--teal);font-weight:700;flex-shrink:0}
-    .feat-n{color:var(--gm);flex-shrink:0}
-    .plan-btn{display:flex;justify-content:center;align-items:center;padding:12px;border-radius:9px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:.18s;width:100%}
-    .plan-btn-p{background:var(--teal);color:#fff}
-    .plan-btn-p:hover{background:var(--td)}
-    .plan-btn-s{background:var(--gl);color:var(--dk)}
-    .plan-btn-s:hover{background:var(--gm)}
-    .free-bar{text-align:center;font-size:15px;color:var(--gt);margin-bottom:48px}
-    .free-bar a{color:var(--teal);font-weight:600}
-    /* Checkout */
-    .checkout{display:none;max-width:680px;margin:0 auto}
+
+    /* NAV */
+    .nav{background:var(--wh);border-bottom:1px solid var(--gm);padding:0 20px;height:60px;
+         display:flex;align-items:center;justify-content:space-between;
+         position:sticky;top:0;z-index:40}
+    .logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--td);text-decoration:none}
+    .back-btn{background:none;border:1px solid var(--gm);border-radius:8px;padding:7px 14px;
+              font-family:var(--font);font-size:13px;color:var(--gt);cursor:pointer;font-weight:600}
+
+    /* LAYOUT */
+    .wrap{max-width:860px;margin:0 auto;padding:40px 16px 60px}
+
+    /* HEADER */
+    .page-header{text-align:center;margin-bottom:36px}
+    .eyebrow{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;
+             color:var(--teal);text-transform:uppercase;background:var(--tl);
+             padding:4px 14px;border-radius:20px;margin-bottom:10px}
+    .page-title{font-size:clamp(22px,5vw,34px);font-weight:900;color:var(--dk);
+                line-height:1.2;margin-bottom:8px}
+    .page-sub{font-size:14px;color:var(--gt);line-height:1.6}
+
+    /* PLAN CARDS */
+    .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+
+    .plan{
+      background:var(--wh);border:2px solid var(--gm);border-radius:16px;
+      padding:24px 20px 20px;position:relative;
+      display:flex;flex-direction:column;
+      transition:transform .2s,box-shadow .2s;
+      cursor:default;
+    }
+    .plan:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(0,0,0,.1)}
+
+    /* Featured plan */
+    .plan.featured{
+      border-color:var(--teal);
+      box-shadow:0 0 0 3px rgba(29,158,117,.13), 0 6px 24px rgba(29,158,117,.12);
+    }
+    .plan-pop{
+      position:absolute;top:-13px;right:50%;transform:translateX(50%);
+      background:var(--teal);color:#fff;font-size:11px;font-weight:700;
+      padding:4px 16px;border-radius:20px;white-space:nowrap;
+    }
+
+    /* Plan header */
+    .plan-icon{font-size:30px;margin-bottom:10px}
+    .plan-name{font-size:18px;font-weight:800;color:var(--dk);margin-bottom:2px}
+    .plan-tagline{font-size:12px;color:var(--gt);margin-bottom:16px;line-height:1.4}
+
+    /* Price */
+    .plan-price-box{
+      background:var(--gl);border-radius:10px;padding:14px 12px;
+      text-align:center;margin-bottom:16px;
+    }
+    .plan.featured .plan-price-box{background:var(--tl)}
+    .plan-amount{font-size:42px;font-weight:900;color:var(--dk);line-height:1}
+    .plan.featured .plan-amount{color:var(--td)}
+    .plan-currency{font-size:16px;font-weight:700;color:var(--gt);vertical-align:super}
+    .plan-period{font-size:12px;color:var(--gt);margin-top:3px}
+    .plan-when{
+      font-size:11px;font-weight:700;color:var(--teal);
+      background:var(--wh);border-radius:6px;padding:3px 8px;
+      display:inline-block;margin-top:6px;
+    }
+    .plan.featured .plan-when{background:rgba(255,255,255,.7)}
+
+    /* Features */
+    .plan-feats{flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+    .feat{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--dk);line-height:1.4}
+    .feat-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+
+    /* CTA */
+    .plan-cta{
+      display:flex;align-items:center;justify-content:center;
+      padding:13px;border-radius:10px;
+      font-family:var(--font);font-size:14px;font-weight:700;
+      cursor:pointer;border:none;transition:.18s;width:100%;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .plan-cta:active{transform:scale(.97)}
+    .cta-green{background:var(--teal);color:#fff}
+    .cta-green:hover{background:var(--tm)}
+    .cta-outline{background:var(--wh);color:var(--teal);border:2px solid var(--teal)}
+    .cta-outline:hover{background:var(--tl)}
+
+    /* Savings badge */
+    .save-badge{
+      display:inline-flex;align-items:center;gap:4px;
+      background:var(--al);color:var(--amb);
+      font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;
+      margin-bottom:8px;
+    }
+
+    /* Comparison note */
+    .compare-note{
+      background:var(--wh);border:1px solid var(--gm);border-radius:12px;
+      padding:16px 18px;margin-bottom:28px;
+      display:flex;align-items:flex-start;gap:12px;
+    }
+    .compare-note-icon{font-size:22px;flex-shrink:0}
+    .compare-note p{font-size:13px;color:var(--gt);line-height:1.7}
+    .compare-note strong{color:var(--dk)}
+
+    /* All plans include */
+    .all-include{
+      background:var(--wh);border:1px solid var(--gm);border-radius:12px;
+      padding:20px;margin-bottom:28px;
+    }
+    .all-include-title{font-size:14px;font-weight:700;color:var(--dk);margin-bottom:14px;
+                       display:flex;align-items:center;gap:8px}
+    .all-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .all-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gt)}
+    .all-item-ic{font-size:16px;flex-shrink:0}
+
+    /* Free trial banner */
+    .trial-banner{
+      background:linear-gradient(135deg,var(--pd),var(--pur));
+      border-radius:12px;padding:18px 20px;color:#fff;
+      display:flex;align-items:center;justify-content:space-between;
+      gap:16px;flex-wrap:wrap;margin-bottom:28px;
+    }
+    .trial-banner-t{font-size:16px;font-weight:700;margin-bottom:4px}
+    .trial-banner-s{font-size:13px;opacity:.85;line-height:1.5}
+    .trial-btn{
+      background:#fff;color:var(--pd);border:none;border-radius:9px;
+      padding:11px 22px;font-family:var(--font);font-size:14px;font-weight:800;
+      cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.18s;
+    }
+    .trial-btn:hover{background:var(--pl)}
+
+    /* FAQ */
+    .faq-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:16px}
+    .faq-item{background:var(--wh);border:1px solid var(--gm);border-radius:10px;
+              margin-bottom:8px;overflow:hidden}
+    .faq-q{display:flex;align-items:center;justify-content:space-between;
+           padding:14px 16px;cursor:pointer;font-size:14px;font-weight:600;
+           gap:10px;user-select:none;-webkit-tap-highlight-color:transparent}
+    .faq-arrow{font-size:18px;color:var(--teal);transition:.2s;flex-shrink:0}
+    .faq-item.open .faq-arrow{transform:rotate(45deg)}
+    .faq-a{display:none;padding:0 16px 14px;font-size:13px;color:var(--gt);line-height:1.7}
+    .faq-item.open .faq-a{display:block}
+
+    /* CHECKOUT VIEW */
+    .checkout{display:none;max-width:640px;margin:0 auto}
     .checkout.visible{display:block}
-    .plans-grid.hidden{display:none}
-    .co-card{background:var(--wh);border-radius:var(--r);border:1px solid var(--gm);padding:24px;margin-bottom:18px}
-    .co-title{font-size:16px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-    .form-group label{display:block;font-size:11px;font-weight:700;color:var(--gt);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
-    .form-group input,.form-group select{width:100%;border:1px solid var(--gm);border-radius:8px;padding:10px 12px;font-family:var(--font);font-size:13px;color:var(--dk);outline:none;transition:.18s}
-    .form-group input:focus{border-color:var(--teal)}
-    .order-summary{background:var(--tl);border-radius:10px;padding:16px;margin-bottom:16px}
-    .os-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
-    .os-total{font-size:17px;font-weight:800;border-top:1px solid var(--tb);padding-top:8px;margin-top:8px}
-    .pay-methods{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
-    .pay-m{border:2px solid var(--gm);border-radius:9px;padding:10px 18px;cursor:pointer;font-size:13px;font-weight:600;color:var(--gt);transition:.18s;display:flex;align-items:center;gap:8px}
+    .co-back{background:none;border:1px solid var(--gm);border-radius:8px;
+             padding:8px 16px;font-family:var(--font);font-size:13px;font-weight:600;
+             color:var(--gt);cursor:pointer;margin-bottom:18px}
+    .co-card{background:var(--wh);border-radius:12px;border:1px solid var(--gm);
+             padding:20px;margin-bottom:14px}
+    .co-title{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .field{margin-bottom:12px}
+    .field label{display:block;font-size:11px;font-weight:700;color:var(--gt);
+                  text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+    .inp{width:100%;height:48px;border:1.5px solid var(--gm);border-radius:9px;
+         padding:0 12px;font-family:var(--font);font-size:14px;color:var(--dk);
+         background:var(--bg);outline:none;transition:.18s;-webkit-appearance:none}
+    .inp:focus{border-color:var(--teal);background:var(--wh);box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .pay-methods{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .pay-m{border:2px solid var(--gm);border-radius:9px;padding:9px 14px;
+           cursor:pointer;font-size:13px;font-weight:600;color:var(--gt);
+           transition:.18s;display:flex;align-items:center;gap:6px;
+           -webkit-tap-highlight-color:transparent}
     .pay-m.sel{border-color:var(--teal);color:var(--td);background:var(--tl)}
-    .back-btn{background:none;border:1px solid var(--gm);border-radius:8px;padding:8px 16px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;color:var(--dk);margin-bottom:14px}
-    .success-screen{display:none;text-align:center;padding:60px 24px}
-    .success-screen.visible{display:block}
-    @media(max-width:720px){.plans{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
+    .order-box{background:var(--tl);border-radius:10px;padding:14px;margin-bottom:14px}
+    .order-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+    .order-total{font-size:17px;font-weight:800;border-top:1px solid var(--tb);
+                 padding-top:8px;margin-top:8px;display:flex;justify-content:space-between}
+    .submit-btn{width:100%;height:52px;background:var(--teal);color:#fff;border:none;
+                border-radius:11px;font-family:var(--font);font-size:16px;font-weight:700;
+                cursor:pointer;transition:.18s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .submit-btn:hover{background:var(--tm)}
+    .submit-btn:active{transform:scale(.98)}
+
+    /* SUCCESS */
+    .success-wrap{display:none;text-align:center;padding:48px 16px}
+    .success-wrap.visible{display:block}
+    .success-icon{font-size:68px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+
+    /* RESPONSIVE */
+    @media(max-width:680px){
+      .plans{grid-template-columns:1fr;gap:12px}
+      .all-grid{grid-template-columns:1fr}
+      .row2{grid-template-columns:1fr}
+      .plan.featured{order:-1}
+    }
+    @media(min-width:481px) and (max-width:720px){
+      .plans{grid-template-columns:1fr 1fr}
+      .plan:last-child{grid-column:span 2}
+    }
   </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav class="nav">
   <a href="index.html" class="logo">🌿 أكاديمية البيروني</a>
-  <button class="back" onclick="history.back()">← رجوع</button>
+  <button class="back-btn" onclick="history.back()">← رجوع</button>
 </nav>
 
-<!-- PLANS VIEW -->
-<div class="wrap" id="plans-view">
-  <div class="header">
-    <div class="eyebrow">الأسعار والاشتراكات</div>
-    <h1>اختر خطتك وابدأ التفوق</h1>
-    <p class="sub">أسعار مدروسة تناسب كل أسرة مغربية — إلغاء في أي وقت</p>
+<!-- ══════════════════════════════════
+     PLANS VIEW
+══════════════════════════════════ -->
+<div id="plans-view">
+<div class="wrap">
+
+  <div class="page-header">
+    <div class="eyebrow">الاشتراكات والأسعار</div>
+    <h1 class="page-title">اختر الخطة التي تناسبك</h1>
+    <p class="page-sub">أسعار واضحة · تُؤدَّى مقدماً في بداية كل فترة · جميع الخدمات مشمولة</p>
   </div>
 
-  <div class="toggle-row">
-    <button class="tog-btn on" id="tb-annual" onclick="setBilling('annual')">سنوي (وفّر 33%)</button>
-    <button class="tog-btn" id="tb-quarterly" onclick="setBilling('quarterly')">فصلي</button>
-    <button class="tog-btn" id="tb-monthly" onclick="setBilling('monthly')">شهري</button>
-  </div>
-
-  <div class="plans plans-grid">
-    <!-- Basic -->
-    <div class="plan">
-      <div class="plan-name">أساسي</div>
-      <div class="plan-price">
-        <span class="plan-cur">درهم</span>
-        <span class="plan-num" id="p1">60</span>
-        <span class="plan-per">/شهر</span>
-      </div>
-      <div class="plan-billed" id="pb1">محاسبة سنوية — 540 درهم</div>
-      <div class="plan-feats">
-        <div class="feat"><span class="feat-y">✓</span>جميع الدروس المصورة (6 مواد)</div>
-        <div class="feat"><span class="feat-y">✓</span>ملفات PDF وخرائط ذهنية</div>
-        <div class="feat"><span class="feat-y">✓</span>تمارين تفاعلية ذاتية التصحيح</div>
-        <div class="feat"><span class="feat-y">✓</span>اختبارات قصيرة ونهاية الوحدة</div>
-        <div class="feat"><span class="feat-y">✓</span>مساعد ذكي (30 رسالة/يوم)</div>
-        <div class="feat"><span class="feat-y">✓</span>شهادات إتمام رقمية</div>
-        <div class="feat"><span class="feat-n">—</span><span style="color:var(--gm)">حصص مباشرة مع الأستاذ</span></div>
-        <div class="feat"><span class="feat-n">—</span><span style="color:var(--gm)">تقارير الآباء الأسبوعية</span></div>
-      </div>
-      <button class="plan-btn plan-btn-s" onclick="startCheckout('أساسي',60,'pb1')">ابدأ الآن</button>
+  <!-- TRIAL BANNER -->
+  <div class="trial-banner">
+    <div>
+      <div class="trial-banner-t">🎁 جرّب المنصة مجاناً أولاً</div>
+      <div class="trial-banner-s">أول درس من كل مادة + اختبار تشخيصي + 10 رسائل مع المساعد الذكي — بدون دفع</div>
     </div>
-    <!-- Advanced -->
+    <button class="trial-btn" onclick="window.location.href='login.html?mode=trial'">ابدأ مجاناً →</button>
+  </div>
+
+  <!-- PLANS GRID -->
+  <div class="plans">
+
+    <!-- ── شهري ── -->
+    <div class="plan">
+      <div class="plan-icon">📅</div>
+      <div class="plan-name">شهري</div>
+      <div class="plan-tagline">مرونة كاملة — ادفع شهراً بشهر</div>
+      <div class="plan-price-box">
+        <div>
+          <span class="plan-currency">درهم </span><span class="plan-amount">60</span>
+        </div>
+        <div class="plan-period">لمدة شهر كامل</div>
+        <div class="plan-when">📌 يُؤدَّى مقدماً في بداية كل شهر</div>
+      </div>
+      <div class="plan-feats">
+        <div class="feat"><span class="feat-icon">🎬</span>جميع الدروس المصورة (6 مواد)</div>
+        <div class="feat"><span class="feat-icon">📡</span>حصص مباشرة جماعية أسبوعية</div>
+        <div class="feat"><span class="feat-icon">👤</span>تتبع فردي لأداء التلميذ</div>
+        <div class="feat"><span class="feat-icon">✏️</span>تمارين وواجبات تفاعلية</div>
+        <div class="feat"><span class="feat-icon">📊</span>اختبارات ذاتية التصحيح</div>
+        <div class="feat"><span class="feat-icon">🤖</span>مساعد ذكي للشرح والتصحيح</div>
+        <div class="feat"><span class="feat-icon">📱</span>تقارير أسبوعية للآباء</div>
+      </div>
+      <button class="plan-cta cta-outline" onclick="startCheckout('شهري',60,'شهر')">
+        اشترك الآن — 60 درهم
+      </button>
+    </div>
+
+    <!-- ── فصلي (featured) ── -->
     <div class="plan featured">
-      <div class="plan-pop">الأكثر اختياراً</div>
-      <div class="plan-name">متقدم</div>
-      <div class="plan-price">
-        <span class="plan-cur">درهم</span>
-        <span class="plan-num" id="p2">49</span>
-        <span class="plan-per">/شهر</span>
+      <div class="plan-pop">الأوفر — الأكثر اختياراً</div>
+      <div class="plan-icon">📚</div>
+      <div class="plan-name">فصلي</div>
+      <div class="plan-tagline">دورة دراسية كاملة بسعر مخفض</div>
+      <div class="plan-price-box">
+        <div>
+          <span class="plan-currency">درهم </span><span class="plan-amount">250</span>
+        </div>
+        <div class="plan-period">لمدة دورة دراسية كاملة (~3 أشهر)</div>
+        <div class="plan-when">📌 يُؤدَّى مقدماً في بداية كل دورة</div>
       </div>
-      <div class="plan-billed" id="pb2">محاسبة فصلية - 245 درهم</div>
+      <div class="save-badge">🎉 وفّر 30 درهماً مقارنة بالشهري</div>
       <div class="plan-feats">
-        <div class="feat"><span class="feat-y">✓</span>كل ما في الأساسي</div>
-        <div class="feat"><span class="feat-y">✓</span>4 حصص مباشرة / شهر</div>
-        <div class="feat"><span class="feat-y">✓</span>تقارير شهرية PDF للآباء</div>
-        <div class="feat"><span class="feat-y">✓</span>محاكاة امتحانات جهوية وموحدة</div>
-        <div class="feat"><span class="feat-y">✓</span>مساعد ذكي غير محدود</div>
-        <div class="feat"><span class="feat-y">✓</span>متابعة الوالدين المتقدمة</div>
-        <div class="feat"><span class="feat-y">✓</span>دعم أولوية (رد خلال ساعات)</div>
-        <div class="feat"><span class="feat-y">✓</span>تحميل المحتوى للمشاهدة Offline</div>
+        <div class="feat"><span class="feat-icon">✅</span><strong>كل ما في الاشتراك الشهري</strong></div>
+        <div class="feat"><span class="feat-icon">🏆</span>شهادة إتمام الدورة الدراسية</div>
+        <div class="feat"><span class="feat-icon">📋</span>تقرير أداء شامل نهاية الدورة</div>
+        <div class="feat"><span class="feat-icon">🎯</span>خطة مراجعة مخصصة للامتحانات</div>
+        <div class="feat"><span class="feat-icon">⭐</span>أولوية في الدعم والرد</div>
+        <div class="feat"><span class="feat-icon">📥</span>تحميل الدروس للمشاهدة بدون إنترنت</div>
       </div>
-      <button class="plan-btn plan-btn-p" onclick="startCheckout('متقدم',49,'pb2')">ابدأ الآن</button>
+      <button class="plan-cta cta-green" onclick="startCheckout('فصلي',250,'دورة دراسية')">
+        اشترك الآن — 250 درهم
+      </button>
     </div>
-    <!-- Family -->
+
+    <!-- ── سنوي ── -->
     <div class="plan">
-      <div class="plan-name">عائلي</div>
-      <div class="plan-price">
-        <span class="plan-cur">درهم</span>
-        <span class="plan-num" id="p3">117</span>
-        <span class="plan-per">/شهر</span>
+      <div class="plan-icon">🎓</div>
+      <div class="plan-name">سنوي</div>
+      <div class="plan-tagline">السنة الدراسية كاملة بأقل سعر</div>
+      <div class="plan-price-box">
+        <div>
+          <span class="plan-currency">درهم </span><span class="plan-amount">400</span>
+        </div>
+        <div class="plan-period">للسنة الدراسية كاملة (10 أشهر)</div>
+        <div class="plan-when">📌 يُؤدَّى مقدماً في بداية السنة الدراسية</div>
       </div>
-      <div class="plan-billed" id="pb3">محاسبة سنوية -  360 درهم (3 تلاميذ)</div>
+      <div class="save-badge">🎉 وفّر 200 درهم مقارنة بالشهري</div>
       <div class="plan-feats">
-        <div class="feat"><span class="feat-y">✓</span>كل ما في المتقدم</div>
-        <div class="feat"><span class="feat-y">✓</span>حتى 3 تلاميذ في العائلة</div>
-        <div class="feat"><span class="feat-y">✓</span>حصص مباشرة غير محدودة</div>
-        <div class="feat"><span class="feat-y">✓</span>أستاذ مرافق خاص لكل تلميذ</div>
-        <div class="feat"><span class="feat-y">✓</span>لوحة مراقبة عائلية موحدة</div>
-        <div class="feat"><span class="feat-y">✓</span>خطة مراجعة شخصية بالذكاء الاصطناعي</div>
-        <div class="feat"><span class="feat-y">✓</span>أولوية قصوى للدعم</div>
-        <div class="feat"><span class="feat-y">✓</span>إلغاء في أي وقت</div>
+        <div class="feat"><span class="feat-icon">✅</span><strong>كل ما في الاشتراك الفصلي</strong></div>
+        <div class="feat"><span class="feat-icon">🏅</span>شهادة إتمام السنة الدراسية</div>
+        <div class="feat"><span class="feat-icon">📊</span>تقارير فصلية مفصلة لكل مادة</div>
+        <div class="feat"><span class="feat-icon">🎯</span>مراجعة شاملة للامتحانات الجهوية</div>
+        <div class="feat"><span class="feat-icon">👨‍🏫</span>جلسة توجيهية فردية مع الأستاذ</div>
+        <div class="feat"><span class="feat-icon">🔒</span>سعر مجمّد — لا ترفيع طوال السنة</div>
       </div>
-      <button class="plan-btn plan-btn-s" onclick="startCheckout('عائلي',117,'pb3')">ابدأ الآن</button>
+      <button class="plan-cta cta-outline" onclick="startCheckout('سنوي',400,'سنة دراسية كاملة')">
+        اشترك الآن — 400 درهم
+      </button>
     </div>
+
+  </div><!-- /.plans -->
+
+  <!-- COMPARISON NOTE -->
+  <div class="compare-note">
+    <div class="compare-note-icon">💡</div>
+    <p>
+      <strong>مقارنة الأسعار:</strong>
+      الاشتراك الشهري = <strong>60 درهم/شهر</strong> ·
+      الفصلي = <strong>~83 درهم/شهر</strong> فعلياً لكنه يشمل الدورة كاملة بـ <strong>250 درهم</strong> ·
+      السنوي = <strong>40 درهم/شهر</strong> فقط للسنة كاملة بـ <strong>400 درهم</strong>.
+      <br/>جميع الخطط تشمل <strong>حصصاً مباشرة جماعية</strong> و<strong>تتبعاً فردياً</strong>.
+    </p>
   </div>
 
-  <div class="free-bar">
-    أو <strong>جرّب مجاناً</strong> — أول درس من كل مادة بدون بطاقة بنكية.
-    <a href="dashboard.html">ابدأ مجاناً ←</a>
+  <!-- ALL PLANS INCLUDE -->
+  <div class="all-include">
+    <div class="all-include-title">
+      <span>✅</span> جميع الخطط تشمل:
+    </div>
+    <div class="all-grid">
+      <div class="all-item"><span class="all-item-ic">🎬</span>دروس مصورة لـ 6 مواد (1AC–3AC)</div>
+      <div class="all-item"><span class="all-item-ic">📡</span>حصص مباشرة جماعية أسبوعية</div>
+      <div class="all-item"><span class="all-item-ic">👤</span>تتبع فردي لأداء التلميذ</div>
+      <div class="all-item"><span class="all-item-ic">🤖</span>مساعد ذكي للشرح والتصحيح</div>
+      <div class="all-item"><span class="all-item-ic">✏️</span>تمارين وواجبات تفاعلية</div>
+      <div class="all-item"><span class="all-item-ic">📱</span>تقارير دورية للآباء</div>
+      <div class="all-item"><span class="all-item-ic">📊</span>اختبارات ذاتية التصحيح</div>
+      <div class="all-item"><span class="all-item-ic">🔑</span>كود شخصي للدخول للمنصة</div>
+    </div>
   </div>
 
   <!-- FAQ -->
-  <div style="max-width:640px;margin:0 auto">
-    <h2 style="text-align:center;font-size:22px;font-weight:700;margin-bottom:24px">أسئلة شائعة</h2>
-    <div id="faqs"></div>
-  </div>
-</div>
+  <div class="faq-title">أسئلة شائعة</div>
+  <div id="faqs"></div>
 
-<!-- CHECKOUT VIEW -->
-<div class="wrap checkout" id="checkout-view">
-  <div class="success-screen" id="success-screen">
-    <div style="font-size:72px;margin-bottom:16px">🎉</div>
-    <h2 style="font-size:28px;font-weight:800;margin-bottom:8px">تم الاشتراك بنجاح!</h2>
-    <p style="font-size:16px;color:var(--gt);margin-bottom:28px">مرحباً بك في أكاديمية البيروني — رحلة التفوق تبدأ الآن</p>
-    <a href="dashboard.html" style="background:var(--teal);color:#fff;border-radius:10px;padding:13px 32px;font-size:15px;font-weight:700;text-decoration:none;display:inline-block">ادخل للوحة التحكم ←</a>
+</div>
+</div><!-- /#plans-view -->
+
+<!-- ══════════════════════════════════
+     CHECKOUT VIEW
+══════════════════════════════════ -->
+<div class="checkout" id="checkout-view">
+<div class="wrap">
+
+  <!-- SUCCESS -->
+  <div class="success-wrap" id="success-wrap">
+    <div class="success-icon">🎉</div>
+    <h2 style="font-size:26px;font-weight:800;margin:14px 0 8px">تم الاشتراك بنجاح!</h2>
+    <p style="font-size:15px;color:var(--gt);margin-bottom:8px" id="success-plan-line"></p>
+    <p style="font-size:14px;color:var(--gt);margin-bottom:24px">سيُرسل إليك كود الدخول عبر واتساب أو البريد الإلكتروني خلال دقائق.</p>
+    <a href="login.html" style="display:inline-flex;align-items:center;gap:8px;background:var(--teal);color:#fff;border-radius:10px;padding:13px 28px;font-size:15px;font-weight:700;text-decoration:none">
+      🔑 ادخل للمنصة الآن
+    </a>
   </div>
+
+  <!-- FORM -->
   <div id="checkout-form">
-    <button class="back-btn" onclick="backToPlans()">← العودة للخطط</button>
-    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
-      <div style="flex:1;min-width:300px">
+    <button class="co-back" onclick="backToPlans()">← العودة للخطط</button>
+
+    <!-- Selected plan summary -->
+    <div style="background:var(--td);color:#fff;border-radius:12px;padding:16px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:12px;opacity:.7;margin-bottom:2px">الخطة المختارة</div>
+        <div style="font-size:18px;font-weight:800" id="co-plan-label">فصلي</div>
+        <div style="font-size:12px;opacity:.75;margin-top:2px" id="co-plan-desc">دورة دراسية كاملة</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:36px;font-weight:900" id="co-amount">250</div>
+        <div style="font-size:12px;opacity:.7">درهم · مرة واحدة مقدماً</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+
+      <!-- LEFT: forms -->
+      <div style="flex:1;min-width:280px">
+
         <div class="co-card">
           <div class="co-title">👤 معلومات التلميذ</div>
-          <div class="form-row">
-            <div class="form-group"><label>اسم التلميذ</label><input placeholder="الاسم الكامل"/></div>
-            <div class="form-group"><label>المستوى الدراسي</label>
-              <select><option>السنة الأولى إعدادي</option><option selected>السنة الثانية إعدادي</option><option>السنة الثالثة إعدادي</option></select>
+          <div class="field">
+            <label>الاسم الكامل للتلميذ</label>
+            <input class="inp" id="f-name" type="text" placeholder="مثال: أيمن بوزيان" autocapitalize="words"/>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>المستوى الدراسي</label>
+              <select class="inp" id="f-grade">
+                <option value="">اختر المستوى</option>
+                <option>السنة الأولى إعدادي (1AC)</option>
+                <option>السنة الثانية إعدادي (2AC)</option>
+                <option>السنة الثالثة إعدادي (3AC)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>المدينة</label>
+              <input class="inp" id="f-city" type="text" placeholder="مراكش"/>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group"><label>البريد الإلكتروني</label><input type="email" placeholder="email@example.com"/></div>
-            <div class="form-group"><label>رقم الهاتف</label><input placeholder="06XXXXXXXX"/></div>
+          <div class="field">
+            <label>رقم هاتف ولي الأمر (واتساب)</label>
+            <input class="inp" id="f-phone" type="tel" inputmode="numeric" placeholder="06XXXXXXXX" autocomplete="tel"/>
           </div>
-          <div class="form-group"><label>المدينة</label><input placeholder="مراكش"/></div>
+          <div class="field">
+            <label>البريد الإلكتروني (اختياري)</label>
+            <input class="inp" id="f-email" type="email" placeholder="email@example.com" autocomplete="email"/>
+          </div>
         </div>
 
         <div class="co-card">
           <div class="co-title">💳 طريقة الدفع</div>
           <div class="pay-methods">
-            <div class="pay-m sel" onclick="selPay(this)">💳 CMI (بطاقة مغربية)</div>
-            <div class="pay-m" onclick="selPay(this)">🌐 Stripe (دولي)</div>
-            <div class="pay-m" onclick="selPay(this)">📱 تحويل بنكي</div>
+            <div class="pay-m sel" onclick="selPay(this,'cmi')">💳 بطاقة مغربية (CMI)</div>
+            <div class="pay-m" onclick="selPay(this,'cash')">💵 دفع نقدي بالمركز</div>
+            <div class="pay-m" onclick="selPay(this,'transfer')">📲 تحويل واتساب</div>
           </div>
-          <div id="cmi-form">
-            <div class="form-row">
-              <div class="form-group" style="grid-column:span 2"><label>رقم البطاقة</label><input placeholder="XXXX XXXX XXXX XXXX" maxlength="19"/></div>
+
+          <!-- CMI FORM -->
+          <div id="pay-cmi">
+            <div class="field">
+              <label>رقم البطاقة</label>
+              <input class="inp" id="f-card" type="tel" inputmode="numeric"
+                     placeholder="XXXX XXXX XXXX XXXX" maxlength="19"
+                     oninput="fmtCard(this)"/>
             </div>
-            <div class="form-row">
-              <div class="form-group"><label>تاريخ الانتهاء</label><input placeholder="MM/YY" maxlength="5"/></div>
-              <div class="form-group"><label>رمز CVV</label><input placeholder="XXX" maxlength="3" type="password"/></div>
+            <div class="row2">
+              <div class="field">
+                <label>تاريخ الانتهاء</label>
+                <input class="inp" type="tel" inputmode="numeric" placeholder="MM/YY" maxlength="5"
+                       oninput="fmtDate(this)"/>
+              </div>
+              <div class="field">
+                <label>رمز CVV</label>
+                <input class="inp" type="password" inputmode="numeric" placeholder="XXX" maxlength="3"/>
+              </div>
             </div>
           </div>
-          <div style="background:var(--tl);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--td);display:flex;gap:8px;align-items:center;margin-top:8px">
-            🔒 دفع آمن ومشفر SSL — بياناتك محمية تماماً
+
+          <!-- CASH INFO -->
+          <div id="pay-cash" style="display:none;background:var(--al);border-radius:9px;padding:12px 14px;font-size:13px;color:#5C3A00;line-height:1.7">
+            📍 <strong>تعال للمركز</strong> وأدِّ المبلغ مباشرةً — ستحصل على كود الدخول فوراً.
+            <br/>العنوان: <strong>مراكش — حي المحاميد</strong>
+            <br/>أوقات الاستقبال: 9ص–6م (السبت والأحد مغلق)
+          </div>
+
+          <!-- TRANSFER INFO -->
+          <div id="pay-transfer" style="display:none;background:var(--tl);border-radius:9px;padding:12px 14px;font-size:13px;color:var(--td);line-height:1.7">
+            📲 أرسل المبلغ عبر واتساب إلى: <strong>0600-000-000</strong>
+            <br/>أرفق اسم التلميذ والمستوى ليُرسَل لك الكود فوراً.
+            <br/><button onclick="window.open('https://wa.me/212600000000','_blank')" style="margin-top:8px;background:var(--teal);color:#fff;border:none;border-radius:7px;padding:8px 16px;font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer">📲 افتح واتساب</button>
+          </div>
+
+          <div style="background:var(--tl);border-radius:8px;padding:9px 12px;font-size:11px;color:var(--td);display:flex;gap:7px;align-items:center;margin-top:10px">
+            🔒 دفع آمن ومشفر — بياناتك محمية تماماً
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: order summary -->
+      <div style="width:250px;flex-shrink:0">
+        <div class="co-card" style="position:sticky;top:80px">
+          <div class="co-title">📋 ملخص الطلب</div>
+          <div class="order-box">
+            <div class="order-row">
+              <span>الخطة</span>
+              <span style="font-weight:700" id="os-plan">فصلي</span>
+            </div>
+            <div class="order-row">
+              <span>المدة</span>
+              <span style="font-weight:700" id="os-period">دورة دراسية</span>
+            </div>
+            <div class="order-row">
+              <span>طريقة الأداء</span>
+              <span style="font-weight:700;color:var(--teal)">مقدماً ✓</span>
+            </div>
+            <div class="order-total">
+              <span>المجموع</span>
+              <span style="color:var(--td)" id="os-total">250 درهم</span>
+            </div>
+          </div>
+
+          <button class="submit-btn" id="submit-btn" onclick="submitCheckout()">
+            <span>🔒 إتمام الاشتراك</span>
+          </button>
+
+          <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--gt);line-height:1.7">
+            ✓ كود الدخول يُرسل فوراً بعد الدفع<br/>
+            ✓ دعم مباشر عبر واتساب
           </div>
         </div>
       </div>
 
-      <div style="width:280px;flex-shrink:0">
-        <div class="co-card">
-          <div class="co-title">📋 ملخص الطلب</div>
-          <div class="order-summary">
-            <div class="os-row"><span>الخطة</span><span id="co-plan-name" style="font-weight:700">متقدم</span></div>
-            <div class="os-row"><span>نوع الاشتراك</span><span id="co-period" style="font-weight:700">فصلي</span></div>
-            <div class="os-row"><span>السعر</span><span id="co-price" style="font-weight:700">249 درهم</span></div>
-            <div class="os-row"><span>خصم</span><span style="color:var(--teal);font-weight:700">-0 درهم</span></div>
-            <div class="os-row os-total"><span>المجموع</span><span id="co-total" style="color:var(--td)">249 درهم</span></div>
-          </div>
-          <div style="font-size:11px;color:var(--gt);margin-bottom:14px;line-height:1.6">
-            بالنقر على "إتمام الاشتراك" فأنت توافق على
-            <a href="#" style="color:var(--teal)">شروط الاستخدام</a> و
-            <a href="#" style="color:var(--teal)">سياسة الخصوصية</a>.
-          </div>
-          <button onclick="completeCheckout()" style="width:100%;background:var(--teal);color:#fff;border:none;border-radius:10px;padding:14px;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:.18s" onmouseover="this.style.background='var(--td)'" onmouseout="this.style.background='var(--teal)'">
-            🔒 إتمام الاشتراك
-          </button>
-          <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--gt)">
-            ✓ إلغاء مجاني في أي وقت<br/>
-            ✓ ضمان استرداد 7 أيام
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+  </div><!-- /#checkout-form -->
 </div>
+</div><!-- /#checkout-view -->
 
 <script>
-const billingData={
-  annual:  {p1:67,  p2:83,  p3:117, b1:'محاسبة سنوية — 799 درهم',        b2:'محاسبة سنوية — 999 درهم',       b3:'محاسبة سنوية — 1,399 درهم (3 تلاميذ)',label:'سنوي'},
-  quarterly:{p1:83, p2:99,  p3:149, b1:'محاسبة فصلية — 249 درهم',         b2:'محاسبة فصلية — 299 درهم',       b3:'محاسبة فصلية — 449 درهم (3 تلاميذ)',label:'فصلي'},
-  monthly: {p1:99,  p2:149, p3:199, b1:'محاسبة شهرية',                    b2:'محاسبة شهرية',                  b3:'محاسبة شهرية (3 تلاميذ)',             label:'شهري'},
+/* ════ DATA ════ */
+const PLANS = {
+  'شهري':  { amount:60,  period:'شهر كامل',            desc:'يُؤدَّى في بداية كل شهر' },
+  'فصلي':  { amount:250, period:'دورة دراسية كاملة',   desc:'يُؤدَّى في بداية كل دورة' },
+  'سنوي':  { amount:400, period:'سنة دراسية كاملة',    desc:'يُؤدَّى في بداية السنة الدراسية' },
 };
-let currentBilling='annual';
+let currentPlan = 'فصلي';
+let currentPayMethod = 'cmi';
 
-function setBilling(b){
-  currentBilling=b;
-  const d=billingData[b];
-  ['1','2','3'].forEach(i=>{
-    const n=document.getElementById('p'+i),pb=document.getElementById('pb'+i);
-    if(n){const s=+n.textContent,t=d['p'+i];animPrice(n,s,t);}
-    if(pb)pb.textContent=d['b'+i];
-  });
-  ['annual','quarterly','monthly'].forEach(x=>{
-    document.getElementById('tb-'+x).classList.toggle('on',x===b);
-  });
-}
-function animPrice(el,s,t){
-  const t0=performance.now();
-  (function f(now){const p=Math.min((now-t0)/350,1),e=1-Math.pow(1-p,3);
-    el.textContent=Math.round(s+(t-s)*e);if(p<1)requestAnimationFrame(f);})(t0);
-}
+/* ════ CHECKOUT ════ */
+function startCheckout(plan, amount, period) {
+  currentPlan = plan;
+  document.getElementById('co-plan-label').textContent = plan;
+  document.getElementById('co-plan-desc').textContent = PLANS[plan].desc;
+  document.getElementById('co-amount').textContent = amount;
+  document.getElementById('os-plan').textContent = plan;
+  document.getElementById('os-period').textContent = PLANS[plan].period;
+  document.getElementById('os-total').textContent = amount + ' درهم';
 
-let selectedPlan='متقدم',selectedPrice=249;
-function startCheckout(plan,pricePerMonth,pbId){
-  const bd=billingData[currentBilling];
-  const periods={annual:'سنوي',quarterly:'فصلي',monthly:'شهري'};
-  const totals={annual:{p1:799,p2:999,p3:1399},quarterly:{p1:249,p2:299,p3:449},monthly:{p1:99,p2:149,p3:199}};
-  const idx={'أساسي':'1','متقدم':'2','عائلي':'3'};
-  const total=totals[currentBilling]['p'+idx[plan]];
-  document.getElementById('co-plan-name').textContent=plan;
-  document.getElementById('co-period').textContent=periods[currentBilling];
-  document.getElementById('co-price').textContent=total+' درهم';
-  document.getElementById('co-total').textContent=total+' درهم';
-  document.getElementById('plans-view').style.display='none';
+  document.getElementById('plans-view').style.display = 'none';
   document.getElementById('checkout-view').classList.add('visible');
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function backToPlans(){
-  document.getElementById('plans-view').style.display='block';
-  document.getElementById('checkout-view').classList.remove('visible');
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function selPay(el){document.querySelectorAll('.pay-m').forEach(m=>m.classList.remove('sel'));el.classList.add('sel');}
-function completeCheckout(){
-  document.getElementById('checkout-form').style.display='none';
-  document.getElementById('success-screen').classList.add('visible');
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
 
-// FAQ
-const faqs=[
-  {q:'هل يمكنني الإلغاء في أي وقت؟',a:'نعم، يمكنك إلغاء اشتراكك في أي وقت من لوحة تحكمك دون أي رسوم إضافية. في حال الإلغاء خلال 7 أيام من الاشتراك نسترجع لك كامل المبلغ.'},
-  {q:'هل المنصة تغطي المنهج المغربي الرسمي؟',a:'نعم، جميع الدروس مصممة وفق المنهج الرسمي للتعليم الإعدادي المغربي (1AC، 2AC، 3AC) ومتوافقة مع وزارة التربية الوطنية.'},
-  {q:'هل يمكن لأكثر من تلميذ استخدام نفس الحساب؟',a:'في الخطة العائلية يمكن لـ 3 تلاميذ استخدام الاشتراك نفسه بحسابات مستقلة لكل منهم. الخطط الأخرى لتلميذ واحد فقط.'},
-  {q:'ما هي طرق الدفع المتاحة؟',a:'نقبل بطاقات CMI المغربية (Visa, Mastercard)، بطاقات Stripe الدولية، والتحويل البنكي. جميع المدفوعات آمنة ومشفرة.'},
-  {q:'هل توجد نسخة مجانية؟',a:'نعم! يمكنك الاستمتاع بأول درس من كل مادة مجاناً بدون بطاقة بنكية، إلى جانب 10 رسائل يومية مع المساعد الذكي.'},
+function backToPlans() {
+  document.getElementById('plans-view').style.display = 'block';
+  document.getElementById('checkout-view').classList.remove('visible');
+  document.getElementById('success-wrap').classList.remove('visible');
+  document.getElementById('checkout-form').style.display = 'block';
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* ════ PAY METHOD ════ */
+function selPay(el, method) {
+  document.querySelectorAll('.pay-m').forEach(m => m.classList.remove('sel'));
+  el.classList.add('sel');
+  currentPayMethod = method;
+  document.getElementById('pay-cmi').style.display      = method === 'cmi'      ? 'block' : 'none';
+  document.getElementById('pay-cash').style.display     = method === 'cash'     ? 'block' : 'none';
+  document.getElementById('pay-transfer').style.display = method === 'transfer' ? 'block' : 'none';
+}
+
+/* ════ SUBMIT ════ */
+function submitCheckout() {
+  const name  = document.getElementById('f-name').value.trim();
+  const grade = document.getElementById('f-grade').value;
+  const phone = document.getElementById('f-phone').value.trim();
+
+  if (!name)  { shake('f-name');  return; }
+  if (!grade) { shake('f-grade'); return; }
+  if (!phone || phone.length < 10) { shake('f-phone'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="opacity:.6">جارٍ المعالجة...</span>';
+
+  setTimeout(() => {
+    document.getElementById('checkout-form').style.display = 'none';
+    const sw = document.getElementById('success-wrap');
+    sw.classList.add('visible');
+    const plan = PLANS[currentPlan];
+    document.getElementById('success-plan-line').textContent =
+      'خطة ' + currentPlan + ' · ' + plan.period + ' · ' + plan.amount + ' درهم';
+    window.scrollTo({ top:0, behavior:'smooth' });
+    btn.disabled = false;
+    btn.innerHTML = '<span>🔒 إتمام الاشتراك</span>';
+  }, 1400);
+}
+
+/* ════ CARD FORMAT ════ */
+function fmtCard(el) {
+  let v = el.value.replace(/\D/g,'').slice(0,16);
+  el.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+function fmtDate(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2,4);
+  el.value = v;
+}
+
+/* ════ SHAKE ════ */
+function shake(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = 'var(--cor)';
+  el.animate([
+    {transform:'translateX(0)'},{transform:'translateX(-6px)'},
+    {transform:'translateX(6px)'},{transform:'translateX(-4px)'},
+    {transform:'translateX(0)'}
+  ], {duration:300});
+  el.focus();
+  setTimeout(() => el.style.borderColor = '', 1400);
+}
+
+/* ════ FAQ ════ */
+const faqs = [
+  {
+    q: 'متى يُبدأ الاشتراك وكيف أحصل على كود الدخول؟',
+    a: 'بمجرد إتمام الدفع يُرسل إليك كود الدخول الشخصي فوراً عبر واتساب أو البريد الإلكتروني. للدفع النقدي بالمركز، يُسلَّم الكود يداً بيد عند الدفع.'
+  },
+  {
+    q: 'ماذا يعني "يُؤدَّى مقدماً"؟',
+    a: 'الاشتراك الشهري: تدفع 60 درهم في بداية كل شهر قبل الاستفادة من الخدمات. الفصلي: 250 درهم في بداية الدورة الدراسية (3 مرات في السنة). السنوي: 400 درهم مرة واحدة في بداية السنة الدراسية.'
+  },
+  {
+    q: 'ماذا تشمل "الحصص المباشرة الجماعية"؟',
+    a: 'حصص بث مباشر أسبوعية مع الأستاذ، يشارك فيها جميع المشتركين بغض النظر عن الخطة. يمكن طرح الأسئلة مباشرةً، وتُسجَّل الحصة وتُرفع على المنصة للمراجعة لاحقاً.'
+  },
+  {
+    q: 'ما الفرق بين "التتبع الفردي" في كل خطة؟',
+    a: 'جميع الخطط تشمل تتبع أداء التلميذ: الدرجات، الحضور، نسبة الإنجاز، وتقارير للآباء. الخطة السنوية تضيف جلسة توجيهية فردية مع الأستاذ وتقارير فصلية مفصلة.'
+  },
+  {
+    q: 'هل يمكن تغيير الخطة لاحقاً؟',
+    a: 'نعم، يمكنك الترقية من الشهري للفصلي أو السنوي في أي وقت ودفع الفرق. تواصل معنا عبر واتساب لإتمام عملية التغيير.'
+  },
+  {
+    q: 'هل المنصة تغطي المنهج المغربي الرسمي؟',
+    a: 'نعم، جميع الدروس مبنية على المنهج الرسمي للتعليم الإعدادي المغربي (1AC، 2AC، 3AC) للمواد: الرياضيات، SVT، الفيزياء والكيمياء، العربية، والفرنسية.'
+  },
 ];
-const faqEl=document.getElementById('faqs');
-faqs.forEach((f,i)=>{
-  const d=document.createElement('div');
-  d.style.cssText='border:1px solid var(--gm);border-radius:10px;margin-bottom:10px;overflow:hidden;background:var(--wh)';
-  d.innerHTML=`<div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block';this.querySelector('span').textContent=this.nextElementSibling.style.display==='block'?'−':'+';" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;font-size:14px;font-weight:600"><span style="flex:1">${f.q}</span><span style="font-size:20px;color:var(--teal);font-weight:700;margin-right:auto;margin-left:8px">+</span></div><div style="display:none;padding:0 18px 14px;font-size:13px;color:var(--gt);line-height:1.7">${f.a}</div>`;
-  faqEl.appendChild(d);
+
+const faqEl = document.getElementById('faqs');
+faqs.forEach(f => {
+  const item = document.createElement('div');
+  item.className = 'faq-item';
+  item.innerHTML = `
+    <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
+      <span>${f.q}</span>
+      <span class="faq-arrow">+</span>
+    </div>
+    <div class="faq-a">${f.a}</div>`;
+  faqEl.appendChild(item);
 });
 </script>
 </body>
