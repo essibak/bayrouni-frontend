@@ -1017,7 +1017,83 @@ function togglePlay(el){
     const settingsName = document.querySelector('#t-settings .sb-n'); // في صفحة الإعدادات
     if (settingsName) settingsName.innerHTML = fullName;
   }
+/* ═══════════════════════════════════
+   جلب الدروس الحقيقية من قاعدة البيانات
+════════════════════════════════════ */
+const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
+// ⚠️ لا تنس وضع مفتاحك الطويل هنا بين علامتي التنصيص
+const SUPABASE_ANON_KEY = 'ضع_مفتاحك_الطويل_هنا'; 
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+async function loadRealLessons() {
+  // 1. جلب أحدث 4 دروس من جدول lessons
+  const { data: lessons, error } = await supabase
+    .from('lessons')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(4);
+
+  if (error) {
+    console.error('خطأ في جلب الدروس:', error);
+    return;
+  }
+
+  // 2. البحث عن المكان الذي سنعرض فيه الدروس في الصفحة
+  // سنبحث عن الصندوق الذي يحتوي على كلمة "دروسي — الأكثر تقدماً"
+  const containerTitles = document.querySelectorAll('.ct');
+  let lessonsContainer = null;
+  containerTitles.forEach(title => {
+    if (title.textContent.includes('دروسي — الأكثر تقدماً')) {
+      lessonsContainer = title.parentElement.nextElementSibling; // هذا هو الـ <div class="cb">
+    }
+  });
+
+  if (!lessonsContainer || !lessons) return;
+
+  // إذا لم تكن هناك دروس
+  if (lessons.length === 0) {
+    lessonsContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gt)">لا توجد دروس منشورة حالياً.</div>';
+    return;
+  }
+
+  // دالة صغيرة لاختيار الأيقونة واللون حسب المادة
+  const getTheme = (subject) => {
+    if(!subject) return {icon: '📚', bg: '#F5F4EF'};
+    if(subject.includes('رياضيات')) return {icon: '📐', bg: '#E1F5EE'};
+    if(subject.includes('حياة') || subject.includes('SVT')) return {icon: '🔬', bg: '#EAF3DE'};
+    if(subject.includes('فيزياء')) return {icon: '⚗️', bg: '#EEEDFE'};
+    if(subject.includes('عربية')) return {icon: '📖', bg: '#FAEEDA'};
+    if(subject.includes('فرنسية')) return {icon: '🇫🇷', bg: '#FAECE7'};
+    return {icon: '📚', bg: '#F5F4EF'};
+  };
+
+  // 3. بناء التصميم للدروس الحقيقية
+  let html = '';
+  lessons.forEach(lesson => {
+    const theme = getTheme(lesson.subject);
+    // تأكدنا أن البيانات لا تحتوي على null
+    const levelStr = lesson.level ? lesson.level : '';
+    const unitStr = lesson.unit_lesson ? lesson.unit_lesson : '';
+    
+    html += `
+      <div class="ci">
+        <div class="ci-th" style="background:${theme.bg}">${theme.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="ci-n">${lesson.title}</div>
+          <div class="ci-m">${lesson.subject} · ${levelStr} · ${unitStr}</div>
+          <div class="ci-pw"><div class="ci-pb"><div class="ci-pf" style="width:0%"></div></div><div class="ci-pp">جديد</div></div>
+        </div>
+        <button class="btn-c" onclick="alert('سيتم فتح درس: ${lesson.title}')">شاهد</button>
+      </div>
+    `;
+  });
+
+  // 4. حقن الدروس الحقيقية في الصفحة بدل الوهمية
+  lessonsContainer.innerHTML = html;
+}
+
+// تشغيل الدالة فور تحميل الصفحة
+document.addEventListener('DOMContentLoaded', loadRealLessons);
   // تشغيل الدالة فور تحميل الصفحة
   loadUserData();
 </script>
