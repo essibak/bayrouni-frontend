@@ -1146,46 +1146,111 @@
 'use strict';
 
 /* ══════════════════════════════════════════════
-   DATA
+   1. الاتصال بقاعدة البيانات (محمي ضد الأعطال)
 ══════════════════════════════════════════════ */
 const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_AO_MAHgD'; 
+const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_AO_MAHgD';
 
 let supabase;
 try {
   if (window.supabase) {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } else {
-    console.warn("تنبيه: مكتبة Supabase غير موجودة في الـ <head>. الأزرار ستعمل، لكن الدروس لن تظهر.");
+    console.warn("مكتبة Supabase غير متوفرة. الأزرار ستعمل ولكن الدروس قد لا تظهر.");
   }
-} catch (error) {
-  console.error("حدث خطأ أثناء الاتصال بقاعدة البيانات:", error);
+} catch (e) {
+  console.error("خطأ في الاتصال بقاعدة البيانات:", e);
 }
 
 let LESSONS_DATA = [];
 
-const AI_ANSWERS = {
-  'أوم'    : '⚡ قانون أوم:\nI = U / R\n• I = شدة التيار (أمبير)\n• U = الجهد (فولط)\n• R = المقاومة (أوم)\n\nمثال: U=12V، R=4Ω → I = 12/4 = 3A ✓',
-  'نيوتن'  : '📌 قانون نيوتن الثالث:\nلكل فعل ردّ فعل مساوٍ له في المقدار ومعاكس في الاتجاه.\n\nمثال: عند دفع الحائط، الحائط يدفعك بنفس القوة 💪',
-  'مثلث'   : '📐 مساحة المثلث:\nS = ½ × القاعدة × الارتفاع\n\nمثال: قاعدة=6سم، ارتفاع=4سم\nS = ½ × 6 × 4 = 12 سم² ✓',
-  'هضم'    : '🔬 مراحل الهضم:\n1️⃣ ميكانيكي — الفم والمعدة\n2️⃣ كيميائي — إنزيمات تحلل الغذاء\n3️⃣ امتصاص — الأمعاء الدقيقة\n4️⃣ طرح — القولون',
-  'فيثاغورس': '📐 مبرهنة فيثاغورس:\nBC² = AB² + AC²\n(في مثلث قائم الزاوية في A)\n\nالتحقق: 3² + 4² = 5²\n9 + 16 = 25 ✓',
-  'طاليس'  : '📏 مبرهنة طاليس:\nإذا قطعت مستقيمات متوازية ضلعي زاوية\nفإن: AM/AB = AN/AC = MN/BC ✓',
-};
+/* ══════════════════════════════════════════════
+   2. جلب الدروس الحقيقية
+══════════════════════════════════════════════ */
+async function fetchRealLessons() {
+  if (!supabase) return;
+  
+  try {
+    const { data, error } = await supabase
+      .from('lessons')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    LESSONS_DATA = data.map((l, index) => {
+      const subj = l.subject || '';
+      const isSVT = subj.includes('حياة') || subj.includes('SVT');
+      const isMath = subj.includes('رياضيات');
+      const isPhys = subj.includes('فيزياء');
+      
+      let icon = '📚', color = '#F5F4EF';
+      if(isMath) { icon = '📐'; color = '#E1F5EE'; }
+      else if(isSVT) { icon = '🔬'; color = '#EAF3DE'; }
+      else if(isPhys) { icon = '⚗️'; color = '#EEEDFE'; }
+
+      return {
+        id: l.id || index,
+        title: l.title || 'بدون عنوان',
+        subject: subj,
+        unit: l.unit_lesson || 'غير محدد',
+        duration: '15:00',
+        progress: 0, 
+        icon: icon,
+        color: color
+      };
+    });
+  } catch (err) {
+    console.error('خطأ أثناء جلب الدروس:', err);
+  }
+
+  if (typeof renderLessons === 'function') renderLessons();
+  updateHomeLessons();
+}
+
+function updateHomeLessons() {
+  const homeContainer = document.querySelector('.tc .card .cb');
+  if(!homeContainer) return;
+  
+  if(LESSONS_DATA.length === 0) {
+    homeContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gt)">لا توجد دروس منشورة حالياً.</div>';
+    return;
+  }
+
+  let html = '';
+  LESSONS_DATA.slice(0, 4).forEach(l => {
+    // حماية البيانات لتجنب تعطل الأزرار بسبب علامات التنصيص
+    const safeData = JSON.stringify(l).replace(/'/g, "\\'").replace(/"/g, "&quot;");
+    html += `
+      <div class="ci">
+        <div class="ci-th" style="background:${l.color}">${l.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="ci-n">${l.title}</div>
+          <div class="ci-m">${l.subject} · ${l.unit}</div>
+          <div class="ci-pw"><div class="ci-pb"><div class="ci-pf" style="width:0%"></div></div><div class="ci-pp" style="color:var(--amb)">جديد</div></div>
+        </div>
+        <button class="btn-c" onclick="openLessonPage('${safeData}')">شاهد</button>
+      </div>
+    `;
+  });
+  homeContainer.innerHTML = html;
+}
 
 /* ══════════════════════════════════════════════
-   TAB NAVIGATION
+   3. دوال التنقل (الأزرار الجانبية)
 ══════════════════════════════════════════════ */
 const TAB_TITLES = {
   home:'لوحة التحكم', lessons:'دروسي', hw:'الواجبات',
   exams:'الاختبارات', live:'الحصص المباشرة', ai:'المساعد الذكي',
   progress:'تقدمي', certs:'شهاداتي', settings:'الإعدادات',
 };
+
 function go(el, tab) {
   document.querySelectorAll('.sb-a').forEach(a => a.classList.remove('on'));
-  el?.classList.add('on');
+  if(el) el.classList.add('on');
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('t-' + tab).classList.add('active');
+  const target = document.getElementById('t-' + tab);
+  if(target) target.classList.add('active');
   document.getElementById('pg-title').textContent = TAB_TITLES[tab] ?? '';
   closeNotif();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1194,7 +1259,7 @@ function go(el, tab) {
 }
 
 /* ══════════════════════════════════════════════
-   PERFORMANCE CHART
+   4. المبيان والإحصائيات
 ══════════════════════════════════════════════ */
 (function drawChart() {
   const c = document.getElementById('chart');
@@ -1230,7 +1295,7 @@ function go(el, tab) {
 })();
 
 /* ══════════════════════════════════════════════
-   LESSONS GRID
+   5. عرض الدروس (صفحة "دروسي")
 ══════════════════════════════════════════════ */
 function renderLessons() {
   const subjectFilter = document.getElementById('filter-subject')?.value;
@@ -1245,12 +1310,14 @@ function renderLessons() {
   });
 
   if (filtered.length === 0) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--gt);font-size:14px">لا توجد دروس تطابق الفلتر المحدد</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--gt);font-size:14px">لا توجد دروس تطابق الفلتر.</div>';
     return;
   }
 
-  grid.innerHTML = filtered.map(l => `
-    <div onclick="openLessonPage(${JSON.stringify(l).replace(/"/g,"'")})"
+  grid.innerHTML = filtered.map(l => {
+    const safeData = JSON.stringify(l).replace(/'/g, "\\'").replace(/"/g, "&quot;");
+    return `
+    <div onclick="openLessonPage('${safeData}')"
          style="cursor:pointer;border:1px solid var(--gm);border-radius:10px;overflow:hidden;transition:.2s;background:var(--wh)"
          onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.borderColor='var(--tb)'"
          onmouseout="this.style.boxShadow='';this.style.borderColor='var(--gm)'">
@@ -1264,365 +1331,175 @@ function renderLessons() {
           </div>
           <span style="font-size:11px;font-weight:700;color:${l.progress===100?'#22C55E':'var(--teal)'}">${l.progress}%</span>
         </div>
-        ${l.progress === 100 ? '<div style="font-size:11px;color:#22C55E;font-weight:700;margin-top:4px">✓ مكتمل</div>' : ''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
-
 function filterLessons() { renderLessons(); }
 
 /* ══════════════════════════════════════════════
-   LESSON PAGE OVERLAY
+   6. مشغل الدرس
 ══════════════════════════════════════════════ */
 let lessonPlaying = false, lessonTimer = null, lessonProgress = 0;
-
-function openLessonPage(lesson) {
-  const l = typeof lesson === 'string' ? JSON.parse(lesson.replace(/'/g, '"')) : lesson;
-  document.getElementById('lo-title').textContent      = l.title;
+function openLessonPage(lessonStr) {
+  const l = typeof lessonStr === 'string' ? JSON.parse(lessonStr.replace(/&quot;/g, '"')) : lessonStr;
+  document.getElementById('lo-title').textContent = l.title;
   document.getElementById('lo-lesson-name').textContent = l.title;
   document.getElementById('lo-lesson-meta').textContent = `${l.subject} · ${l.unit} · ⏱ ${l.duration}`;
 
   lessonProgress = l.progress;
   lessonPlaying  = false;
-  document.getElementById('lo-fill').style.width       = lessonProgress + '%';
-  document.getElementById('lo-play-icon').textContent   = '▶';
-  document.getElementById('lo-ctrl-play').textContent   = '▶';
-  document.getElementById('lo-time').textContent        = `0:00 / ${l.duration}`;
+  document.getElementById('lo-fill').style.width = lessonProgress + '%';
+  document.getElementById('lo-play-icon').textContent = '▶';
+  document.getElementById('lo-ctrl-play').textContent = '▶';
+  document.getElementById('lo-time').textContent = `0:00 / ${l.duration}`;
   clearInterval(lessonTimer);
 
   document.getElementById('lesson-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-
 function closeLessonPage() {
   document.getElementById('lesson-overlay').classList.remove('open');
   document.body.style.overflow = '';
   clearInterval(lessonTimer);
   lessonPlaying = false;
 }
-
 function toggleLessonPlay() {
   lessonPlaying = !lessonPlaying;
-  const playIcon = document.getElementById('lo-play-icon');
-  const ctrlIcon = document.getElementById('lo-ctrl-play');
+  const playIcon = document.getElementById('lo-play-icon'), ctrlIcon = document.getElementById('lo-ctrl-play');
   playIcon.textContent = lessonPlaying ? '⏸' : '▶';
   ctrlIcon.textContent = lessonPlaying ? '⏸' : '▶';
-
   if (lessonPlaying) {
     lessonTimer = setInterval(() => {
-      lessonProgress = Math.min(lessonProgress + 0.3, 100);
+      lessonProgress = Math.min(lessonProgress + 0.5, 100);
       document.getElementById('lo-fill').style.width = lessonProgress + '%';
       if (lessonProgress >= 100) {
-        clearInterval(lessonTimer);
-        lessonPlaying = false;
-        playIcon.textContent = '▶';
-        ctrlIcon.textContent = '▶';
+        clearInterval(lessonTimer); lessonPlaying = false;
+        playIcon.textContent = '▶'; ctrlIcon.textContent = '▶';
         showToast('🎉 أتممت هذا الدرس! +10 نقاط');
       }
     }, 100);
-  } else {
-    clearInterval(lessonTimer);
-  }
+  } else { clearInterval(lessonTimer); }
 }
-
 function markLessonDone() {
   lessonProgress = 100;
   document.getElementById('lo-fill').style.width = '100%';
-  clearInterval(lessonTimer);
-  lessonPlaying = false;
-  document.getElementById('lo-play-icon').textContent  = '▶';
-  document.getElementById('lo-ctrl-play').textContent  = '▶';
-  showToast('✅ تم تسجيل الدرس كمكتمل! +10 نقاط 🎉');
-  addPoints(10);
+  clearInterval(lessonTimer); lessonPlaying = false;
+  document.getElementById('lo-play-icon').textContent = '▶'; document.getElementById('lo-ctrl-play').textContent = '▶';
+  showToast('✅ تم تسجيل الدرس كمكتمل!'); addPoints(10);
   setTimeout(closeLessonPage, 1500);
 }
 
 /* ══════════════════════════════════════════════
-   HOMEWORK MODAL
+   7. النوافذ المنبثقة (الواجبات والشارات)
 ══════════════════════════════════════════════ */
 function openHwModal(hw) {
   const urgentBadge = hw.urgent
     ? `<div style="display:inline-flex;align-items:center;gap:6px;background:var(--cl);color:var(--cor);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-bottom:14px">⚠️ عاجل — ينتهي ${hw.deadline}</div>`
     : `<div style="display:inline-flex;align-items:center;gap:6px;background:var(--al);color:var(--amb);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-bottom:14px">📅 الموعد النهائي: ${hw.deadline}</div>`;
-
   document.getElementById('hw-modal-title').textContent = `${hw.icon} ${hw.title}`;
-  document.getElementById('hw-modal-body').innerHTML = `
-    ${urgentBadge}
+  document.getElementById('hw-modal-body').innerHTML = `${urgentBadge}
     <div style="background:var(--bg);border-radius:8px;padding:14px;margin-bottom:14px">
       <div style="font-size:12px;font-weight:700;color:var(--gt);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">تعليمات الواجب</div>
-      <ul style="font-size:13px;color:var(--dk);line-height:2;padding-right:16px">
-        <li>اقرأ التعليمات بعناية قبل البدء</li>
-        <li>أجب على جميع الأسئلة المطلوبة</li>
-        <li>يمكنك الاستعانة بالمساعد الذكي عند الحاجة</li>
-        <li>راجع إجاباتك قبل التسليم</li>
-      </ul>
-    </div>
-    <div style="font-size:13px;color:var(--gt);line-height:1.7">
-      المادة: <strong>${hw.subject}</strong> · الموعد النهائي: <strong>${hw.deadline}</strong>
+      <ul style="font-size:13px;color:var(--dk);line-height:2;padding-right:16px"><li>اقرأ التعليمات بعناية</li><li>أجب على جميع الأسئلة</li><li>راجع إجاباتك</li></ul>
     </div>`;
   document.getElementById('hw-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  document.getElementById('hw-modal-ok')._hw = hw;
 }
-
-function closeHwModal() {
-  document.getElementById('hw-modal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-function submitHw() {
-  closeHwModal();
-  showToast('✅ تم بدء الواجب! وُفِّقت 📝');
-}
-
-/* ══════════════════════════════════════════════
-   BADGE MODAL
-══════════════════════════════════════════════ */
+function closeHwModal() { document.getElementById('hw-modal').classList.remove('open'); }
+function submitHw() { closeHwModal(); showToast('✅ تم بدء الواجب! وُفِّقت 📝'); }
 function showBadgeInfo(icon, name, desc, state) {
   const locked = state === 'locked';
   document.getElementById('badge-modal-body').innerHTML = `
     <div style="font-size:60px;margin-bottom:12px;${locked?'filter:grayscale(1);opacity:.4':''}">${icon}</div>
     <div style="font-size:17px;font-weight:800;margin-bottom:8px;color:${locked?'var(--gt)':'var(--dk)'}">${name}</div>
     <div style="font-size:13px;color:var(--gt);line-height:1.6;margin-bottom:${locked?'16px':'0'}">${desc}</div>
-    ${locked ? `<div style="background:var(--gl);border-radius:8px;padding:10px;font-size:12px;color:var(--gt)">🔒 هذه الشارة لم تُكتسب بعد</div>` : `<div style="background:var(--tl);border-radius:8px;padding:10px;font-size:12px;color:var(--td);margin-top:12px">✅ مكتسبة!</div>`}
+    ${locked ? `<div style="background:var(--gl);border-radius:8px;padding:10px;font-size:12px;color:var(--gt)">🔒 الشارة مقفلة</div>` : `<div style="background:var(--tl);border-radius:8px;padding:10px;font-size:12px;color:var(--td);margin-top:12px">✅ مكتسبة!</div>`}
     <button onclick="closeBadgeModal()" style="margin-top:16px;background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer">حسناً</button>`;
   document.getElementById('badge-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
 }
-function closeBadgeModal() {
-  document.getElementById('badge-modal').classList.remove('open');
-  document.body.style.overflow = '';
-}
+function closeBadgeModal() { document.getElementById('badge-modal').classList.remove('open'); }
 
 /* ══════════════════════════════════════════════
-   AI — HOME WIDGET
+   8. المساعد الذكي
 ══════════════════════════════════════════════ */
 function askAI() {
-  const q   = document.getElementById('ai-q')?.value.trim();
+  const q = document.getElementById('ai-q')?.value.trim();
   const box = document.getElementById('ai-r');
   if (!q) return;
-  box.style.display = 'block';
-  box.textContent   = '⏳ جارٍ التحليل...';
-  setTimeout(() => {
-    let answer = 'سؤال ممتاز! 🤔\nجرّب كتابة موضوع محدد مثل: "اشرح قانون أوم" أو "ما هي مبرهنة فيثاغورس؟"';
-    for (const [key, val] of Object.entries(AI_ANSWERS)) {
-      if (q.includes(key)) { answer = val; break; }
-    }
-    box.textContent = answer;
-  }, 700);
+  box.style.display = 'block'; box.textContent = '⏳ جارٍ التحليل...';
+  setTimeout(() => { box.textContent = 'أهلاً! أنا المساعد الذكي، يمكنني مساعدتك في دراستك وتصحيح تمارينك.'; }, 700);
 }
-
-/* ══════════════════════════════════════════════
-   AI — FULL CHAT TAB
-══════════════════════════════════════════════ */
 let chatInitialized = false;
 function initChat() {
   if (chatInitialized) return;
   chatInitialized = true;
-  const box = document.getElementById('chat-msgs');
-  box.innerHTML = '';
-  addBotMsg('مرحباً أيمن! 👋 أنا مساعدك الذكي. يمكنني شرح أي درس وتصحيح الأخطاء. اكتب سؤالك!');
+  document.getElementById('chat-msgs').innerHTML = '';
+  addBotMsg('مرحباً أيمن! 👋 أنا مساعدك الذكي. يمكنني شرح أي درس. اكتب سؤالك!');
 }
-
 function sendChat() {
   const inp = document.getElementById('chat-in');
-  const q   = inp.value.trim();
+  const q = inp.value.trim();
   if (!q) return;
-  inp.value = '';
-  addUserMsg(q);
-  showTyping(true);
+  inp.value = ''; addUserMsg(q); showTyping(true);
   setTimeout(() => {
     showTyping(false);
-    let answer = 'سؤال ممتاز! 🤔\nبناءً على منهجك الحالي، أنصحك بمراجعة هذا الموضوع من الوحدة الأولى.\nهل تريد مني أن أشرح مفهوماً معيناً؟';
-    for (const [key, val] of Object.entries(AI_ANSWERS)) {
-      if (q.includes(key)) { answer = val; break; }
-    }
-    addBotMsg(answer);
+    addBotMsg('سؤال ممتاز! 🤔 بناءً على منهجك الحالي أنصحك بمراجعة هذه الوحدة.');
   }, 1200);
 }
-
 function addUserMsg(text) {
   const box = document.getElementById('chat-msgs');
-  const d   = document.createElement('div');
-  d.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:8px';
-  d.innerHTML = `<div style="background:var(--teal);color:#fff;border-radius:12px 12px 4px 12px;padding:10px 14px;max-width:75%;font-size:13px;line-height:1.6;white-space:pre-line">${text}</div>`;
-  box.appendChild(d);
-  box.scrollTop = box.scrollHeight;
+  const d = document.createElement('div'); d.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:8px';
+  d.innerHTML = `<div style="background:var(--teal);color:#fff;border-radius:12px 12px 4px 12px;padding:10px 14px;max-width:75%;font-size:13px;line-height:1.6">${text}</div>`;
+  box.appendChild(d); box.scrollTop = box.scrollHeight;
 }
-
 function addBotMsg(text) {
   const box = document.getElementById('chat-msgs');
-  const d   = document.createElement('div');
-  d.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:flex-start';
-  d.innerHTML = `
-    <div style="width:32px;height:32px;border-radius:50%;background:var(--pur);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🤖</div>
-    <div style="background:var(--gl);border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:78%;font-size:13px;line-height:1.7;color:var(--dk);white-space:pre-line">${text}</div>`;
-  box.appendChild(d);
-  box.scrollTop = box.scrollHeight;
+  const d = document.createElement('div'); d.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:flex-start';
+  d.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;background:var(--pur);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🤖</div>
+    <div style="background:var(--gl);border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:78%;font-size:13px;line-height:1.7;color:var(--dk)">${text}</div>`;
+  box.appendChild(d); box.scrollTop = box.scrollHeight;
 }
-
-function showTyping(show) {
-  document.getElementById('typing-ind').classList.toggle('show', show);
-}
-
-document.getElementById('chat-in')?.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey) sendChat();
-});
+function showTyping(show) { document.getElementById('typing-ind').classList.toggle('show', show); }
 
 /* ══════════════════════════════════════════════
-   NOTIFICATIONS
+   9. الإشعارات والبحث وتفاصيل إضافية
 ══════════════════════════════════════════════ */
 let notifOpen = false, unreadCount = 3;
 function toggleNotif() {
-  notifOpen = !notifOpen;
-  document.getElementById('notif-panel').classList.toggle('open', notifOpen);
-  if (notifOpen) {
-    document.addEventListener('click', outsideNotifClick);
-  }
+  notifOpen = !notifOpen; document.getElementById('notif-panel').classList.toggle('open', notifOpen);
 }
-function closeNotif() {
-  notifOpen = false;
-  document.getElementById('notif-panel').classList.remove('open');
-  document.removeEventListener('click', outsideNotifClick);
-}
-function outsideNotifClick(e) {
-  if (!document.getElementById('notif-panel').contains(e.target) &&
-      !document.getElementById('notif-btn').contains(e.target)) closeNotif();
-}
+function closeNotif() { notifOpen = false; document.getElementById('notif-panel').classList.remove('open'); }
 function markRead(item) {
   const dot = item.querySelector('.notif-dot2');
-  if (dot && !dot.classList.contains('read')) {
-    dot.classList.add('read');
-    unreadCount = Math.max(0, unreadCount - 1);
-    updateNotifDot();
-  }
+  if (dot && !dot.classList.contains('read')) { dot.classList.add('read'); unreadCount = Math.max(0, unreadCount - 1); updateNotifDot(); }
 }
-function markAllRead() {
-  document.querySelectorAll('.notif-dot2').forEach(d => d.classList.add('read'));
-  unreadCount = 0;
-  updateNotifDot();
-}
-function updateNotifDot() {
-  const dot = document.getElementById('notif-dot');
-  dot.style.display = unreadCount > 0 ? 'block' : 'none';
-}
-
-/* ══════════════════════════════════════════════
-   SEARCH
-══════════════════════════════════════════════ */
+function markAllRead() { document.querySelectorAll('.notif-dot2').forEach(d => d.classList.add('read')); unreadCount = 0; updateNotifDot(); }
+function updateNotifDot() { document.getElementById('notif-dot').style.display = unreadCount > 0 ? 'block' : 'none'; }
 function onSearch(q) {
   const drop = document.getElementById('search-drop');
-  if (!q.trim()) { drop.classList.remove('open'); drop.innerHTML = ''; return; }
-  const results = LESSONS_DATA.filter(l =>
-    l.title.includes(q) || l.subject.includes(q) || l.unit.includes(q)
-  );
-  if (results.length === 0) {
-    drop.innerHTML = `<div class="search-drop-empty">لا نتائج لـ "${q}"</div>`;
-  } else {
-    drop.innerHTML = results.map(l => `
-      <div class="search-drop-item" onmousedown="openLessonPage(${JSON.stringify(l).replace(/"/g,"'")});closeSearch()">
-        <span style="font-size:18px">${l.icon}</span>
-        <div>
-          <div style="font-weight:600">${l.title}</div>
-          <div style="font-size:11px;color:var(--gt)">${l.subject} · ${l.unit}</div>
-        </div>
-      </div>`).join('');
-  }
-  drop.classList.add('open');
+  if (!q.trim()) { drop.classList.remove('open'); return; }
+  drop.innerHTML = `<div class="search-drop-empty">يبحث عن "${q}"...</div>`; drop.classList.add('open');
 }
-function closeSearch() {
-  setTimeout(() => {
-    document.getElementById('search-drop').classList.remove('open');
-  }, 150);
-}
-
-/* ══════════════════════════════════════════════
-   LIVE SESSION
-══════════════════════════════════════════════ */
-function joinLive(title, teacher) {
-  showToast(`📡 جارٍ الانضمام إلى "${title}" مع ${teacher}...`);
-  setTimeout(() => showToast('✅ انضممت للحصة المباشرة! شاشتك ستُفتح قريباً'), 1500);
-}
-
-/* ══════════════════════════════════════════════
-   EXAMS
-══════════════════════════════════════════════ */
-function startExam(title, questions, minutes) {
-  showToast(`📊 جارٍ تحضير "${title}"...\n${questions} سؤال · ${minutes} دقيقة`);
-  setTimeout(() => showToast('✅ الاختبار جاهز! حظاً موفقاً 🎯'), 1000);
-}
-
-/* ══════════════════════════════════════════════
-   REMINDER
-══════════════════════════════════════════════ */
-function setReminder(title, time) {
-  showToast(`🔔 تم ضبط تذكير لـ "${title}" — ${time}`);
-}
-
-/* ══════════════════════════════════════════════
-   CERTIFICATES
-══════════════════════════════════════════════ */
-function downloadCert(name) {
-  showToast(`📥 جارٍ تحضير شهادة "${name}" بصيغة PDF...`);
-  setTimeout(() => showToast('✅ الشهادة جاهزة للتحميل'), 1200);
-}
-
-/* ══════════════════════════════════════════════
-   SETTINGS
-══════════════════════════════════════════════ */
+function closeSearch() { setTimeout(() => document.getElementById('search-drop').classList.remove('open'), 150); }
+function joinLive(title, teacher) { showToast(`📡 جارٍ الانضمام إلى "${title}"...`); }
+function startExam(title) { showToast(`📊 جارٍ تحضير "${title}"...`); }
+function setReminder(title) { showToast(`🔔 تم ضبط تذكير لـ "${title}"`); }
+function downloadCert(name) { showToast(`📥 جارٍ تحضير الشهادة...`); }
 function toggleSwitch(el) {
-  const isOn = el.classList.toggle('on');
-  el.style.background  = isOn ? 'var(--teal)' : 'var(--gm)';
-  const dot            = el.querySelector('div');
-  dot.style.left       = isOn ? '20px' : '2px';
+  const isOn = el.classList.toggle('on'); el.style.background = isOn ? 'var(--teal)' : 'var(--gm)';
+  el.querySelector('div').style.left = isOn ? '20px' : '2px';
 }
-function saveSettings() {
-  const name = document.getElementById('set-name')?.value.trim();
-  showToast(`✅ تم حفظ الإعدادات${name ? ` — مرحباً ${name}` : ''}`);
-}
-
-/* ══════════════════════════════════════════════
-   POINTS SYSTEM
-══════════════════════════════════════════════ */
+function saveSettings() { showToast('✅ تم حفظ الإعدادات'); }
 let currentPoints = 2450;
-function addPoints(n) {
-  currentPoints += n;
-  const el = document.getElementById('pts-val');
-  if (el) el.textContent = currentPoints.toLocaleString('ar-MA');
-}
-
-/* ══════════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════════ */
+function addPoints(n) { currentPoints += n; const el = document.getElementById('pts-val'); if(el) el.textContent = currentPoints.toLocaleString('ar-MA'); }
 let toastTimer;
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.opacity   = '1';
-  t.style.transform = 'translateX(-50%) translateY(0)';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    t.style.opacity   = '0';
-    t.style.transform = 'translateX(-50%) translateY(20px)';
-  }, 3000);
+  const t = document.getElementById('toast'); t.textContent = msg; t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 3000);
 }
 
-/* ══════════════════════════════════════════════
-   KEYBOARD SHORTCUTS
-══════════════════════════════════════════════ */
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeHwModal();
-    closeBadgeModal();
-    closeLessonPage();
-    closeNotif();
-  }
-});
-
-/* ══════════════════════════════════════════════
-   INIT
-══════════════════════════════════════════════ */
-updateNotifDot();
+// تهيئة
+document.addEventListener('DOMContentLoaded', () => { updateNotifDot(); fetchRealLessons(); });
 </script>
 </body>
 </html>
