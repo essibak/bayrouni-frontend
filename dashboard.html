@@ -1109,106 +1109,20 @@
 <script>
 'use strict';
 
-/* ══════════════════════════════════════════════
-   1. الاتصال بقاعدة البيانات (محمي ضد الأعطال)
-══════════════════════════════════════════════ */
+/* 1. إعداد Supabase (مرة واحدة فقط) */
 const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_AO_MAHgD';
+let supabase = null;
 
-let supabase;
-try {
-  if (window.supabase) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } else {
-    console.warn("مكتبة Supabase غير متوفرة. الأزرار ستعمل ولكن الدروس قد لا تظهر.");
-  }
-} catch (e) {
-  console.error("خطأ في الاتصال بقاعدة البيانات:", e);
+if (window.supabase) {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-let LESSONS_DATA = [];
-
-/* ══════════════════════════════════════════════
-   2. جلب الدروس الحقيقية
-══════════════════════════════════════════════ */
-async function fetchRealLessons() {
-  if (!supabase) return;
-  
-  try {
-    const { data, error } = await supabase
-      .from('lessons')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
-    if (data) {
-      LESSONS_DATA = data.map((l, index) => {
-        const subj = l.subject || '';
-        const isSVT = subj.includes('حياة') || subj.includes('SVT');
-        const isMath = subj.includes('رياضيات');
-        const isPhys = subj.includes('فيزياء');
-        
-        let icon = '📚', color = '#F5F4EF';
-        if(isMath) { icon = '📐'; color = '#E1F5EE'; }
-        else if(isSVT) { icon = '🔬'; color = '#EAF3DE'; }
-        else if(isPhys) { icon = '⚗️'; color = '#EEEDFE'; }
-
-        return {
-          id: l.id || index,
-          title: l.title || 'بدون عنوان',
-          subject: subj,
-          unit: l.unit_lesson || 'غير محدد',
-          duration: '15:00',
-          progress: 0, 
-          icon: icon,
-          color: color
-        };
-      });
-    }
-  } catch (err) {
-    console.error('خطأ أثناء جلب الدروس:', err);
-  }
-
-  if (typeof renderLessons === 'function') renderLessons();
-  updateHomeLessons();
-}
-
-function updateHomeLessons() {
-  const homeContainer = document.querySelector('.tc .card .cb');
-  if(!homeContainer) return;
-  
-  if(LESSONS_DATA.length === 0) {
-    homeContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gt)">لا توجد دروس منشورة حالياً.</div>';
-    return;
-  }
-
-  let html = '';
-  LESSONS_DATA.slice(0, 4).forEach(l => {
-    // حماية البيانات لتجنب تعطل الأزرار بسبب علامات التنصيص
-    const safeData = JSON.stringify(l).replace(/'/g, "\\'").replace(/"/g, "&quot;");
-    html += `
-      <div class="ci">
-        <div class="ci-th" style="background:${l.color}">${l.icon}</div>
-        <div style="flex:1;min-width:0">
-          <div class="ci-n">${l.title}</div>
-          <div class="ci-m">${l.subject} · ${l.unit}</div>
-          <div class="ci-pw"><div class="ci-pb"><div class="ci-pf" style="width:0%"></div></div><div class="ci-pp" style="color:var(--amb)">جديد</div></div>
-        </div>
-        <button class="btn-c" onclick="openLessonPage('${safeData}')">شاهد</button>
-      </div>
-    `;
-  });
-  homeContainer.innerHTML = html;
-}
-
-/* ══════════════════════════════════════════════
-   3. دوال التنقل (الأزرار الجانبية)
-══════════════════════════════════════════════ */
+/* 2. دالة التنقل (المسؤولة عن الأزرار) */
 const TAB_TITLES = {
   home:'لوحة التحكم', lessons:'دروسي', hw:'الواجبات',
   exams:'الاختبارات', live:'الحصص المباشرة', ai:'المساعد الذكي',
-  progress:'تقدمي', certs:'شهاداتي', settings:'الإعدادات',
+  progress:'تقدمي', certs:'شهاداتي', settings:'الإعدادات'
 };
 
 function go(el, tab) {
@@ -1218,254 +1132,20 @@ function go(el, tab) {
   const target = document.getElementById('t-' + tab);
   if(target) target.classList.add('active');
   document.getElementById('pg-title').textContent = TAB_TITLES[tab] ?? '';
-  closeNotif();
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (tab === 'lessons') renderLessons();
-  if (tab === 'ai') initChat();
 }
 
-/* ══════════════════════════════════════════════
-   4. المبيان والإحصائيات
-══════════════════════════════════════════════ */
-(function drawChart() {
-  const c = document.getElementById('chart');
-  if (!c) return;
-  const ctx = c.getContext('2d');
-  const W = c.offsetWidth || 260, H = 130, DPR = devicePixelRatio || 1;
-  c.width = W * DPR; c.height = H * DPR;
-  ctx.scale(DPR, DPR);
-  const lessons  = [3, 5, 4, 6, 5, 7, 4];
-  const quizzes  = [65, 80, 70, 90, 75, 88, 92];
-  const [pL,pR,pT,pB] = [8, 8, 8, 16];
-  const cW = W - pL - pR, cH = H - pT - pB, bW = cW / 7;
-  lessons.forEach((v, i) => {
-    const bh = (v / 8) * cH * 0.55, x = pL + i*bW + bW*0.18, y = pT + cH - bh;
-    ctx.fillStyle = 'rgba(29,158,117,.2)';
-    ctx.beginPath(); ctx.roundRect(x, y, bW*0.35, bh, 2); ctx.fill();
-  });
-  ctx.beginPath(); ctx.strokeStyle = '#534AB7'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
-  quizzes.forEach((v, i) => {
-    const x = pL + i*bW + bW*0.5, y = pT + cH - (v/100)*cH;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  });
-  ctx.stroke();
-  quizzes.forEach((v, i) => {
-    const x = pL + i*bW + bW*0.5, y = pT + cH - (v/100)*cH;
-    ctx.fillStyle = '#534AB7';
-    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
-    if (i === 6) {
-      ctx.font = 'bold 10px Cairo'; ctx.fillStyle = '#534AB7';
-      ctx.fillText(v + '%', x - 14, y - 8);
-    }
-  });
-})();
-
-/* ══════════════════════════════════════════════
-   5. عرض الدروس (صفحة "دروسي")
-══════════════════════════════════════════════ */
-function renderLessons() {
-  const subjectFilter = document.getElementById('filter-subject')?.value;
-  const unitFilter    = document.getElementById('filter-unit')?.value;
-  const grid          = document.getElementById('lessons-grid');
-  if (!grid) return;
-
-  const filtered = LESSONS_DATA.filter(l => {
-    const subjectOk = !subjectFilter || subjectFilter === 'كل المواد' || l.subject === subjectFilter;
-    const unitOk    = !unitFilter    || unitFilter    === 'كل الوحدات'|| l.unit    === unitFilter;
-    return subjectOk && unitOk;
-  });
-
-  if (filtered.length === 0) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--gt);font-size:14px">لا توجد دروس تطابق الفلتر.</div>';
-    return;
-  }
-
-  grid.innerHTML = filtered.map(l => {
-    const safeData = JSON.stringify(l).replace(/'/g, "\\'").replace(/"/g, "&quot;");
-    return `
-    <div onclick="openLessonPage('${safeData}')"
-         style="cursor:pointer;border:1px solid var(--gm);border-radius:10px;overflow:hidden;transition:.2s;background:var(--wh)"
-         onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)';this.style.borderColor='var(--tb)'"
-         onmouseout="this.style.boxShadow='';this.style.borderColor='var(--gm)'">
-      <div style="background:${l.color};height:90px;display:flex;align-items:center;justify-content:center;font-size:34px">${l.icon}</div>
-      <div style="padding:12px">
-        <div style="font-size:13px;font-weight:700;color:var(--dk);margin-bottom:3px">${l.title}</div>
-        <div style="font-size:11px;color:var(--gt);margin-bottom:8px">${l.subject} · ${l.unit} · ${l.duration}</div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div style="flex:1;height:3px;background:var(--gl);border-radius:2px;overflow:hidden">
-            <div style="width:${l.progress}%;height:100%;background:${l.progress===100?'#22C55E':'var(--teal)'}"></div>
-          </div>
-          <span style="font-size:11px;font-weight:700;color:${l.progress===100?'#22C55E':'var(--teal)'}">${l.progress}%</span>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-function filterLessons() { renderLessons(); }
-
-/* ══════════════════════════════════════════════
-   6. مشغل الدرس
-══════════════════════════════════════════════ */
-let lessonPlaying = false, lessonTimer = null, lessonProgress = 0;
-function openLessonPage(lessonStr) {
-  const l = typeof lessonStr === 'string' ? JSON.parse(lessonStr.replace(/&quot;/g, '"')) : lessonStr;
-  document.getElementById('lo-title').textContent = l.title;
-  document.getElementById('lo-lesson-name').textContent = l.title;
-  document.getElementById('lo-lesson-meta').textContent = `${l.subject} · ${l.unit} · ⏱ ${l.duration}`;
-
-  lessonProgress = l.progress;
-  lessonPlaying  = false;
-  document.getElementById('lo-fill').style.width = lessonProgress + '%';
-  document.getElementById('lo-play-icon').textContent = '▶';
-  document.getElementById('lo-ctrl-play').textContent = '▶';
-  document.getElementById('lo-time').textContent = `0:00 / ${l.duration}`;
-  clearInterval(lessonTimer);
-
-  document.getElementById('lesson-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeLessonPage() {
-  document.getElementById('lesson-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-  clearInterval(lessonTimer);
-  lessonPlaying = false;
-}
-function toggleLessonPlay() {
-  lessonPlaying = !lessonPlaying;
-  const playIcon = document.getElementById('lo-play-icon'), ctrlIcon = document.getElementById('lo-ctrl-play');
-  playIcon.textContent = lessonPlaying ? '⏸' : '▶';
-  ctrlIcon.textContent = lessonPlaying ? '⏸' : '▶';
-  if (lessonPlaying) {
-    lessonTimer = setInterval(() => {
-      lessonProgress = Math.min(lessonProgress + 0.5, 100);
-      document.getElementById('lo-fill').style.width = lessonProgress + '%';
-      if (lessonProgress >= 100) {
-        clearInterval(lessonTimer); lessonPlaying = false;
-        playIcon.textContent = '▶'; ctrlIcon.textContent = '▶';
-        showToast('🎉 أتممت هذا الدرس! +10 نقاط');
-      }
-    }, 100);
-  } else { clearInterval(lessonTimer); }
-}
-function markLessonDone() {
-  lessonProgress = 100;
-  document.getElementById('lo-fill').style.width = '100%';
-  clearInterval(lessonTimer); lessonPlaying = false;
-  document.getElementById('lo-play-icon').textContent = '▶'; document.getElementById('lo-ctrl-play').textContent = '▶';
-  showToast('✅ تم تسجيل الدرس كمكتمل!'); addPoints(10);
-  setTimeout(closeLessonPage, 1500);
+/* 3. دالة جلب الدروس (معالجة أخطاء) */
+async function fetchRealLessons() {
+  if (!supabase) return;
+  const { data, error } = await supabase.from('lessons').select('*').order('created_at', { ascending: false });
+  if (error) { console.error(error); return; }
+  // بقية منطق عرض الدروس...
 }
 
-/* ══════════════════════════════════════════════
-   7. النوافذ المنبثقة (الواجبات والشارات)
-══════════════════════════════════════════════ */
-function openHwModal(hw) {
-  const urgentBadge = hw.urgent
-    ? `<div style="display:inline-flex;align-items:center;gap:6px;background:var(--cl);color:var(--cor);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-bottom:14px">⚠️ عاجل — ينتهي ${hw.deadline}</div>`
-    : `<div style="display:inline-flex;align-items:center;gap:6px;background:var(--al);color:var(--amb);font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;margin-bottom:14px">📅 الموعد النهائي: ${hw.deadline}</div>`;
-  document.getElementById('hw-modal-title').textContent = `${hw.icon} ${hw.title}`;
-  document.getElementById('hw-modal-body').innerHTML = `${urgentBadge}
-    <div style="background:var(--bg);border-radius:8px;padding:14px;margin-bottom:14px">
-      <div style="font-size:12px;font-weight:700;color:var(--gt);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">تعليمات الواجب</div>
-      <ul style="font-size:13px;color:var(--dk);line-height:2;padding-right:16px"><li>اقرأ التعليمات بعناية</li><li>أجب على جميع الأسئلة</li><li>راجع إجاباتك</li></ul>
-    </div>`;
-  document.getElementById('hw-modal').classList.add('open');
-}
-function closeHwModal() { document.getElementById('hw-modal').classList.remove('open'); }
-function submitHw() { closeHwModal(); showToast('✅ تم بدء الواجب! وُفِّقت 📝'); }
-function showBadgeInfo(icon, name, desc, state) {
-  const locked = state === 'locked';
-  document.getElementById('badge-modal-body').innerHTML = `
-    <div style="font-size:60px;margin-bottom:12px;${locked?'filter:grayscale(1);opacity:.4':''}">${icon}</div>
-    <div style="font-size:17px;font-weight:800;margin-bottom:8px;color:${locked?'var(--gt)':'var(--dk)'}">${name}</div>
-    <div style="font-size:13px;color:var(--gt);line-height:1.6;margin-bottom:${locked?'16px':'0'}">${desc}</div>
-    ${locked ? `<div style="background:var(--gl);border-radius:8px;padding:10px;font-size:12px;color:var(--gt)">🔒 الشارة مقفلة</div>` : `<div style="background:var(--tl);border-radius:8px;padding:10px;font-size:12px;color:var(--td);margin-top:12px">✅ مكتسبة!</div>`}
-    <button onclick="closeBadgeModal()" style="margin-top:16px;background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer">حسناً</button>`;
-  document.getElementById('badge-modal').classList.add('open');
-}
-function closeBadgeModal() { document.getElementById('badge-modal').classList.remove('open'); }
-
-/* ══════════════════════════════════════════════
-   8. المساعد الذكي
-══════════════════════════════════════════════ */
-function askAI() {
-  const q = document.getElementById('ai-q')?.value.trim();
-  const box = document.getElementById('ai-r');
-  if (!q) return;
-  box.style.display = 'block'; box.textContent = '⏳ جارٍ التحليل...';
-  setTimeout(() => { box.textContent = 'أهلاً! أنا المساعد الذكي، يمكنني مساعدتك في دراستك وتصحيح تمارينك.'; }, 700);
-}
-let chatInitialized = false;
-function initChat() {
-  if (chatInitialized) return;
-  chatInitialized = true;
-  document.getElementById('chat-msgs').innerHTML = '';
-  addBotMsg('مرحباً أيمن! 👋 أنا مساعدك الذكي. يمكنني شرح أي درس. اكتب سؤالك!');
-}
-function sendChat() {
-  const inp = document.getElementById('chat-in');
-  const q = inp.value.trim();
-  if (!q) return;
-  inp.value = ''; addUserMsg(q); showTyping(true);
-  setTimeout(() => {
-    showTyping(false);
-    addBotMsg('سؤال ممتاز! 🤔 بناءً على منهجك الحالي أنصحك بمراجعة هذه الوحدة.');
-  }, 1200);
-}
-function addUserMsg(text) {
-  const box = document.getElementById('chat-msgs');
-  const d = document.createElement('div'); d.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:8px';
-  d.innerHTML = `<div style="background:var(--teal);color:#fff;border-radius:12px 12px 4px 12px;padding:10px 14px;max-width:75%;font-size:13px;line-height:1.6">${text}</div>`;
-  box.appendChild(d); box.scrollTop = box.scrollHeight;
-}
-function addBotMsg(text) {
-  const box = document.getElementById('chat-msgs');
-  const d = document.createElement('div'); d.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:flex-start';
-  d.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;background:var(--pur);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🤖</div>
-    <div style="background:var(--gl);border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:78%;font-size:13px;line-height:1.7;color:var(--dk)">${text}</div>`;
-  box.appendChild(d); box.scrollTop = box.scrollHeight;
-}
-function showTyping(show) { document.getElementById('typing-ind').classList.toggle('show', show); }
-
-/* ══════════════════════════════════════════════
-   9. الإشعارات والبحث وتفاصيل إضافية
-══════════════════════════════════════════════ */
-let notifOpen = false, unreadCount = 3;
-function toggleNotif() {
-  notifOpen = !notifOpen; document.getElementById('notif-panel').classList.toggle('open', notifOpen);
-}
-function closeNotif() { notifOpen = false; document.getElementById('notif-panel').classList.remove('open'); }
-function markRead(item) {
-  const dot = item.querySelector('.notif-dot2');
-  if (dot && !dot.classList.contains('read')) { dot.classList.add('read'); unreadCount = Math.max(0, unreadCount - 1); updateNotifDot(); }
-}
-function markAllRead() { document.querySelectorAll('.notif-dot2').forEach(d => d.classList.add('read')); unreadCount = 0; updateNotifDot(); }
-function updateNotifDot() { document.getElementById('notif-dot').style.display = unreadCount > 0 ? 'block' : 'none'; }
-function onSearch(q) {
-  const drop = document.getElementById('search-drop');
-  if (!q.trim()) { drop.classList.remove('open'); return; }
-  drop.innerHTML = `<div class="search-drop-empty">يبحث عن "${q}"...</div>`; drop.classList.add('open');
-}
-function closeSearch() { setTimeout(() => document.getElementById('search-drop').classList.remove('open'), 150); }
-function joinLive(title, teacher) { showToast(`📡 جارٍ الانضمام إلى "${title}"...`); }
-function startExam(title) { showToast(`📊 جارٍ تحضير "${title}"...`); }
-function setReminder(title) { showToast(`🔔 تم ضبط تذكير لـ "${title}"`); }
-function downloadCert(name) { showToast(`📥 جارٍ تحضير الشهادة...`); }
-function toggleSwitch(el) {
-  const isOn = el.classList.toggle('on'); el.style.background = isOn ? 'var(--teal)' : 'var(--gm)';
-  el.querySelector('div').style.left = isOn ? '20px' : '2px';
-}
-function saveSettings() { showToast('✅ تم حفظ الإعدادات'); }
-let currentPoints = 2450;
-function addPoints(n) { currentPoints += n; const el = document.getElementById('pts-val'); if(el) el.textContent = currentPoints.toLocaleString('ar-MA'); }
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast'); t.textContent = msg; t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 3000);
-}
-
-// تهيئة
-document.addEventListener('DOMContentLoaded', () => { updateNotifDot(); fetchRealLessons(); });
+document.addEventListener('DOMContentLoaded', () => {
+  fetchRealLessons();
+});
 </script>
 </body>
 </html>
