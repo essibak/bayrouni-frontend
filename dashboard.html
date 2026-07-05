@@ -373,6 +373,34 @@
     }
     @media(max-width:500px){.sr{grid-template-columns:1fr 1fr}}
   </style>
+  <script>
+  // نضع تعريف الدوال في الأعلى لتكون جاهزة دائماً
+  function go(el, tab) {
+    document.querySelectorAll('.sb-a').forEach(a => a.classList.remove('on'));
+    if(el) el.classList.add('on');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('t-' + tab);
+    if(target) target.classList.add('active');
+    document.getElementById('pg-title').textContent = {
+        home:'لوحة التحكم', lessons:'دروسي', hw:'الواجبات',
+        exams:'الاختبارات', live:'الحصص المباشرة', ai:'المساعد الذكي',
+        progress:'تقدمي', certs:'شهاداتي', settings:'الإعدادات'
+    }[tab] || '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // تحميل مكتبة Supabase برمجياً لضمان عدم حدوث تعارض
+  const script = document.createElement('script');
+  script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+  script.onload = () => {
+    window.supabaseClient = window.supabase.createClient(
+      'https://ggredrfictkcbizvwhre.supabase.co',
+      'sb_publishable_TeURCc0iuZujdSC6r58jHA_AO_MAHgD'
+    );
+    console.log("Supabase تم الاتصال بنجاح");
+  };
+  document.head.appendChild(script);
+</script>
 </head>
 <body>
 
@@ -1105,42 +1133,6 @@
             background:var(--dk);color:#fff;padding:11px 20px;border-radius:10px;
             font-size:13px;font-weight:600;opacity:0;transition:.3s;pointer-events:none;
             z-index:999;max-width:360px;text-align:center;white-space:nowrap"></div>
-<script>
-'use strict';
 
-// 1. تعريف Supabase بأمان
-const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_AO_MAHgD';
-
-let supabase = null;
-if (window.supabase) {
-  try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } catch(e) { console.error("خطأ Supabase:", e); }
-}
-
-// 2. دالة التنقل (التي تشغل الأزرار)
-const TAB_TITLES = {
-  home:'لوحة التحكم', lessons:'دروسي', hw:'الواجبات',
-  exams:'الاختبارات', live:'الحصص المباشرة', ai:'المساعد الذكي',
-  progress:'تقدمي', certs:'شهاداتي', settings:'الإعدادات'
-};
-
-function go(el, tab) {
-  document.querySelectorAll('.sb-a').forEach(a => a.classList.remove('on'));
-  if(el) el.classList.add('on');
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById('t-' + tab);
-  if(target) target.classList.add('active');
-  document.getElementById('pg-title').textContent = TAB_TITLES[tab] ?? '';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// 3. تشغيل الدوال عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', () => {
-    // يمكن إضافة دوال جلب الدروس هنا لاحقاً
-    console.log("المنصة جاهزة");
-});
-</script>
 </body>
 </html>
