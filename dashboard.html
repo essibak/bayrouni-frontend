@@ -1105,20 +1105,21 @@
             background:var(--dk);color:#fff;padding:11px 20px;border-radius:10px;
             font-size:13px;font-weight:600;opacity:0;transition:.3s;pointer-events:none;
             z-index:999;max-width:360px;text-align:center;white-space:nowrap"></div>
-
 <script>
 'use strict';
 
-/* 1. إعداد Supabase (مرة واحدة فقط) */
+// 1. تعريف Supabase بأمان
 const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_AO_MAHgD';
-let supabase = null;
 
+let supabase = null;
 if (window.supabase) {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch(e) { console.error("خطأ Supabase:", e); }
 }
 
-/* 2. دالة التنقل (المسؤولة عن الأزرار) */
+// 2. دالة التنقل (التي تشغل الأزرار)
 const TAB_TITLES = {
   home:'لوحة التحكم', lessons:'دروسي', hw:'الواجبات',
   exams:'الاختبارات', live:'الحصص المباشرة', ai:'المساعد الذكي',
@@ -1135,16 +1136,10 @@ function go(el, tab) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* 3. دالة جلب الدروس (معالجة أخطاء) */
-async function fetchRealLessons() {
-  if (!supabase) return;
-  const { data, error } = await supabase.from('lessons').select('*').order('created_at', { ascending: false });
-  if (error) { console.error(error); return; }
-  // بقية منطق عرض الدروس...
-}
-
+// 3. تشغيل الدوال عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
-  fetchRealLessons();
+    // يمكن إضافة دوال جلب الدروس هنا لاحقاً
+    console.log("المنصة جاهزة");
 });
 </script>
 </body>
