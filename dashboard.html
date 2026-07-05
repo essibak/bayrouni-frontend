@@ -1148,16 +1148,21 @@
 /* ══════════════════════════════════════════════
    DATA
 ══════════════════════════════════════════════ */
-const LESSONS_DATA = [
-  {id:1, title:'الهندسة الفضائية — المجسمات', subject:'رياضيات', unit:'الوحدة 3', duration:'18:34', progress:72, icon:'📐', color:'#E1F5EE'},
-  {id:2, title:'الجهاز الهضمي والهضم',         subject:'SVT',      unit:'الوحدة 2', duration:'22:10', progress:85, icon:'🔬', color:'#EAF3DE'},
-  {id:3, title:'التيار الكهربائي وقانون أوم',   subject:'فيزياء',   unit:'الوحدة 1', duration:'25:00', progress:40, icon:'⚗️', color:'#EEEDFE'},
-  {id:4, title:'الأساليب البلاغية في النثر',    subject:'عربية',    unit:'الوحدة 4', duration:'20:15', progress:60, icon:'📖', color:'#FAEEDA'},
-  {id:5, title:'الجبر — معادلات الدرجة الثانية',subject:'رياضيات', unit:'الوحدة 2', duration:'30:00', progress:20, icon:'📐', color:'#E1F5EE'},
-  {id:6, title:'التنفس عند الإنسان',             subject:'SVT',      unit:'الوحدة 1', duration:'18:00', progress:100,icon:'🔬', color:'#EAF3DE'},
-  {id:7, title:'الدوال الخطية والتآلفية',        subject:'رياضيات', unit:'الوحدة 1', duration:'22:00', progress:55, icon:'📐', color:'#E1F5EE'},
-  {id:8, title:'القراءة والفهم',                  subject:'عربية',    unit:'الوحدة 2', duration:'16:00', progress:90, icon:'📖', color:'#FAEEDA'},
-];
+const SUPABASE_URL = 'https://ggredrfictkcbizvwhre.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_TeURCc0iuZujdSC6r58jHA_AO_MAHgD'; 
+
+let supabase;
+try {
+  if (window.supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+    console.warn("تنبيه: مكتبة Supabase غير موجودة في الـ <head>. الأزرار ستعمل، لكن الدروس لن تظهر.");
+  }
+} catch (error) {
+  console.error("حدث خطأ أثناء الاتصال بقاعدة البيانات:", error);
+}
+
+let LESSONS_DATA = [];
 
 const AI_ANSWERS = {
   'أوم'    : '⚡ قانون أوم:\nI = U / R\n• I = شدة التيار (أمبير)\n• U = الجهد (فولط)\n• R = المقاومة (أوم)\n\nمثال: U=12V، R=4Ω → I = 12/4 = 3A ✓',
